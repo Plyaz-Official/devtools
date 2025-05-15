@@ -1,0 +1,45 @@
+### 1. Publish Package Workflow
+
+- **File:** `.github/workflows/publish.yml`
+- **Trigger:** Push to the `main` branch
+- **What it does:**
+  - Checks out the repository
+  - Sets up pnpm (version 8)
+  - Installs dependencies
+  - Builds the package
+  - Publishes the package with restricted access
+- **Permissions:**
+  - Reads repository contents
+  - Writes to packages
+- **Authentication:** Uses the `GITHUB_TOKEN` secret
+
+### 2. Deploy Workflow
+
+- **File:** `.github/workflows/deploy.yml`
+- **Trigger:** Push to `main`, `dev`, and `staging` branches
+- **What it does:**
+  - Checks out the repository
+  - Sets up pnpm (version 8)
+  - Installs dependencies (using `GITHUB_TOKEN` if needed)
+  - Builds the app/service
+  - Runs lint and tests
+- **Note:** Deployment steps can be added as needed to this workflow
+
+---
+
+## Customizing the Workflows
+
+- Modify the branch names under `on:` to control when workflows run
+- Change the pnpm version in `pnpm/action-setup@v2` as needed
+- Add extra build, test, or deployment steps to fit your project
+- Manage secrets like `GITHUB_TOKEN` in your repository settings for authentication
+
+---
+
+## Secrets
+
+Make sure the following secrets are configured in your GitHub repository:
+
+- `GITHUB_TOKEN` (automatically available in GitHub Actions)
+
+---

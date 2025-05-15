@@ -1,0 +1,21 @@
+# .github/workflows/deploy.yml
+name: Install + Build + Deploy
+
+on:
+  push:
+    branches: [main, dev, staging]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm test
