@@ -1,6 +1,14 @@
 # Token Management for Local Development
 
+## Using GitHub's Automatic `GITHUB_TOKEN` (Recommended for GitHub Actions)
+
+- GitHub automatically provides a `GITHUB_TOKEN` in Actions workflows with scoped permissions.
+- This token is used to authenticate package installs and publishes securely within the workflow.
+- You **do not** need to create a personal token manually when using this in GitHub Actions.
+
 ## Creating a Personal Access Token (PAT)
+
+> **Use PAT tokens for local development or manual scripts outside of GitHub Actions workflows.**
 
 1. Go to your GitHub account settings
 2. Navigate to Developer Settings → Personal Access Tokens → Fine-grained tokens
