@@ -27,15 +27,6 @@
 
 ---
 
-## Customizing the Workflows
-
-- Modify the branch names under `on:` to control when workflows run
-- Change the pnpm version in `pnpm/action-setup@v2` as needed
-- Add extra build, test, or deployment steps to fit your project
-- Manage secrets like `GITHUB_TOKEN` in your repository settings for authentication
-
----
-
 ## Secrets
 
 Make sure the following secrets are configured in your GitHub repository:
