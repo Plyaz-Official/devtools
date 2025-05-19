@@ -1,15 +1,18 @@
 {
-  "name": "devtools",
+  "name": "@playz/devtools",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "build": "tsc -b",
-    "test": "jest",
+    "test": "vitest",
     "publish": "pnpm publish --access=restricted"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.11.0"
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "vitest": "^3.1.3"
+  }
 }
