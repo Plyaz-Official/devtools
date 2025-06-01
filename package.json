@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
-    "publish": "pnpm publish --access=restricted"
+    "publish": "pnpm publish --access public"
   },
   "keywords": [],
   "author": "",

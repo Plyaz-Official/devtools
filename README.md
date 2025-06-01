@@ -31,6 +31,7 @@ Script to set up consumer repositories for development.
 Script to link all internal packages.
 
 > **Note:** Remember to add execution permissions:
+>
 > ```bash
 > chmod +x scripts/dev-setup.sh scripts/link-all.sh
 > ```
@@ -75,4 +76,23 @@ Documentation for customizing workflows is included in `.github/workflows/README
 2. Run the setup script to prepare your repo:
    ```bash
    ./scripts/dev-setup.sh
+   ```
 
+### Temporary Public Publishing Policy
+
+For now, packages can be published publicly using:
+
+```bash
+pnpm run publish
+```
+
+This is a temporary measure since most packages currently don't contain sensitive content and aren't likely to be widely used externally.
+
+Once we begin working with sensitive content (especially authentication or Web3 integrations), all packages will be made private.
+
+**Never commit sensitive files**, such as:
+
+- `.env`
+- `.npmrc` (with tokens)
+
+Empty variables are acceptable, but never expose actual secrets.
