@@ -15,7 +15,7 @@ jobs:
           version: 8
       - run: pnpm install
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
       - run: pnpm build
       - run: pnpm lint
       - run: pnpm test
