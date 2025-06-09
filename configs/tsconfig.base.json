@@ -6,7 +6,8 @@
     "moduleResolution": "Node",
     "baseUrl": "./",
     "paths": {
-      "@plyaz/*": ["packages/*/src"]
+      "@plyaz/*": ["packages/*/src"],
+      "@config/vitest": ["configs/vitest.config.ts"]
     },
     "strict": true,
     "esModuleInterop": true,
@@ -20,6 +21,6 @@
     "sourceMap": true,
     "outDir": "dist"
   },
-  "include": ["src"],
+  "include": ["src", "configs", "storybook"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }
