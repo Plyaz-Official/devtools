@@ -24,6 +24,17 @@ jobs:
           node-version: '22.4.x'
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}" > ~/.npmrc
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
@@ -44,6 +55,6 @@ jobs:
           git push origin --tags
 
       - name: Publish to npm
-        run: pnpm publish --access public --dry-run --no-git-checks
+        run: pnpm publish --access public --dry-run --no-git-checks --report-summary
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
