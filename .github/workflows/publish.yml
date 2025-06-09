@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: pnpm/action-setup@v2
         with:
           version: 8
