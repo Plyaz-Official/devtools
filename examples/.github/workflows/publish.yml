@@ -17,6 +17,6 @@ jobs:
           version: 8
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm publish --access=restricted
+      - run: pnpm publish --access public
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}

@@ -7,7 +7,7 @@ module.exports = {
   ],
   plugins: [
     "@typescript-eslint",
-    "@darraghor/nestjs-typed",
+    "@darraghor/eslint-plugin-nestjs-typed",
     "unicorn",
     "security",
     "import",
