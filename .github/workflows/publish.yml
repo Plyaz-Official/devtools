@@ -17,6 +17,17 @@ jobs:
           version: 8
       - run: pnpm install
       - run: pnpm build
+      - run: pnpm run release
+      - name: Push version bump commit and tags
+        run: |
+          git push origin main
+          git push origin --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: echo "//registry.npmjs.org/:_authToken=${GITHUB_TOKEN}" > ~/.npmrc
+        env:
+          GITHUB_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
       - run: pnpm publish --access public --no-git-checks
         env:
           GITHUB_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
