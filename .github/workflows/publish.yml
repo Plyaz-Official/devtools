@@ -30,7 +30,6 @@ jobs:
           git push origin --tags
         env:
           NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
-
       - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
         env:
           NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
