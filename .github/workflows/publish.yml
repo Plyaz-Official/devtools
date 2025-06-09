@@ -13,26 +13,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+
       - uses: pnpm/action-setup@v2
         with:
           version: 8
+
       - name: Configure Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Setup npm auth
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}" > ~/.npmrc
+
       - run: pnpm install
       - run: pnpm build
       - run: pnpm run release
+
       - name: Push version bump commit and tags
         run: |
-          git push origin main
-          git push origin --tags
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
-      - run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+          git push origin main || echo "No new commits to push"
+          git push origin --tags || echo "No new tags to push"
+
       - run: pnpm publish --access public --no-git-checks
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
