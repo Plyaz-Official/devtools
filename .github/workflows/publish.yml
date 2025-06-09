@@ -8,13 +8,19 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       - uses: pnpm/action-setup@v2
         with:
           version: 8
+      - name: Configure Git
+      run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
       - run: pnpm install
       - run: pnpm build
       - run: pnpm run release
