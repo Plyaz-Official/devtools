@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
-    "publish": "pnpm publish --access public",
+    "release:publish": "pnpm publish --access public",
+    "publish:ci": "pnpm publish --access public --no-git-checks",
     "lint": "eslint .",
     "release": "standard-version"
   },
