@@ -1,6 +1,6 @@
 {
   "name": "@plyaz/devtools",
-  "version": "1.1.8",
+  "version": "1.1.7",
   "publishConfig": {
     "access": "public"
   },
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
-    "publish": "pnpm publish --access public --dry-run --no-git-checks --report-summary",
+    "publish": "pnpm publish --access public",
     "lint": "eslint .",
     "release": "standard-version"
   },
