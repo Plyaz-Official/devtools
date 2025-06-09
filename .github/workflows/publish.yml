@@ -55,6 +55,6 @@ jobs:
           git push origin --tags
 
       - name: Publish to npm
-        run: pnpm publish --access public --dry-run --no-git-checks --report-summary
+        run: pnpm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}

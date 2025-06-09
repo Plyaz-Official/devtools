@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
-    "publish": "pnpm publish --access public",
+    "publish": "pnpm publish --access public --dry-run --no-git-checks --report-summary",
     "lint": "eslint .",
     "release": "standard-version"
   },
