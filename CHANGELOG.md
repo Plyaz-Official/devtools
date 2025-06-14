@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.1.17 (2025-06-14)
+
+
+### Bug Fixes
+
+* Fix dependency review requires to be called on PR ([ae9069e](https://github.com/Plyaz-Official/devtools/commit/ae9069e13dfd29f4657929d290d4b91f0918958f))
+
 ### 1.1.16 (2025-06-14)
 
 ### 1.1.15 (2025-06-14)
