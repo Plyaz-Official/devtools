@@ -1,2 +1,3 @@
-import baseConfig from "./eslint/base.nextjs.mjs";
-export default baseConfig;
+import base from './eslint/base.mjs'
+
+export default base;
