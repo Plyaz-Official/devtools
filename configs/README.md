@@ -26,8 +26,8 @@ This folder contains base config templates for TypeScript and other shared confi
 ### Vitest Configuration
 
 ```javascript
-import { defineConfig } from "vitest/config";
-import baseConfig from "@plyaz/devtools/configs/vitest.config";
+import { defineConfig } from 'vitest/config';
+import baseConfig from '@plyaz/devtools/configs/vitest.config';
 
 export default defineConfig({
   ...baseConfig,
