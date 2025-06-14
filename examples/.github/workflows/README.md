@@ -16,7 +16,7 @@
 ### 2. Deploy Workflow
 
 - **File:** `.github/workflows/deploy.yml`
-- **Trigger:** Push to `main`, `dev`, and `staging` branches
+- **Trigger:** Push to `main`, `dev`, and `staging` branches, PR to `main`, `dev`, and `staging` branches
 - **What it does:**
   - Checks out the repository
   - Sets up pnpm (version 8)
@@ -24,6 +24,15 @@
   - Builds the app/service
   - Runs lint and tests
 - **Note:** Deployment steps can be added as needed to this workflow
+
+### 3. Security Workflow
+
+- **File:** `.github/workflows/security.yml`
+- **Trigger:** Push to `main`, `dev`, and `staging` branches, PR to `main`, `dev`, and `staging` branches
+- **What it does:**
+  - Review current dependencies for their current score
+  - Audit current dependencies if anything moderate
+- **Note:** Security, review and analysis can be added to this workflow
 
 ---
 
