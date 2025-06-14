@@ -31,7 +31,7 @@
 - **Trigger:** Push to `main`, `dev`, and `staging` branches, PR to `main`, `dev`, and `staging` branches
 - **What it does:**
   - Review current dependencies for their current score
-  - Audit current dependencies if anything critical
+  - Audit current dependencies if anything moderate
 - **Note:** Security, review and analysis can be added to this workflow
 
 ---
