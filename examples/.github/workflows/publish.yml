@@ -1,5 +1,27 @@
 name: Publish Package
 
+# ----------------------------------------------------------------------------------
+# 🚀 Publish Package Workflow (Main Branch)
+#
+# This workflow builds and publishes the package to the public npm registry
+# whenever a commit is pushed to the `main` branch.
+#
+# It performs the following steps:
+# 1. Authenticates with GitHub and npm
+# 2. Installs dependencies and caches pnpm store
+# 3. Builds the project
+# 4. Runs the release script (typically bumps version via semantic-release or similar)
+# 5. Pushes version bump commit and Git tags back to origin
+# 6. Publishes the built package to npm with `--access public`
+#
+# 🔐 Requirements:
+# - `NPM_PRIVATE_PACKAGE_TOKEN` secret must be set in repository secrets.
+# - Package must be configured correctly in `package.json` (with `name`, `version`, etc.)
+#
+# 📝 Trigger:
+# - Only runs on `push` to the `main` branch.
+# ----------------------------------------------------------------------------------
+
 on:
   push:
     branches: [main]
@@ -7,16 +29,68 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+
+    # 🔐 Permissions required for pushing code and publishing packages
     permissions:
-      contents: read
-      packages: write
+      contents: write     # To push commits/tags
+      packages: write     # To publish to GitHub Packages (optional here, but good practice)
+
     steps:
-      - uses: actions/checkout@v3
+      # 🧾 Checkout the repository
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # 📦 Setup pnpm
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - run: pnpm install
-      - run: pnpm build
-      - run: pnpm publish --access public
+
+      # 📦 Setup Node.js and registry config
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.4.x'
+          registry-url: 'https://registry.npmjs.org'
+
+      # 🔐 Authenticate with npm registry using secret token
+      - name: Authenticate with npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}" > ~/.npmrc
+
+      # 💾 Restore pnpm cache to speed up install
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.pnpm-store
+          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-${{ runner.os }}-
+
+      # 🔧 Configure Git identity for pushing version bump commits
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 📥 Install dependencies
+      - name: Install dependencies
+        run: pnpm install
+
+      # 🛠️ Build the project
+      - name: Build project
+        run: pnpm build
+
+      # 🏷️ Run release script (e.g., semantic-release, standard-version, etc.)
+      - name: Run release script
+        run: pnpm run release
+
+      # 🔁 Push version bump commit and Git tags back to main
+      - name: Push version bump commit and tags
+        run: |
+          git push origin main
+          git push origin --tags
+
+      # 🚀 Publish the package to npm (public access, skip Git checks)
+      - name: Publish to npm
+        run: pnpm publish --access public --no-git-checks
         env:
-          GITHUB_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}

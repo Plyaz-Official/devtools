@@ -1,47 +1,64 @@
-
 name: 'Security'
+
+# ----------------------------------------------------------------------------------
+# 📦 Security Workflow for Node.js Projects
+#
+# This workflow ensures supply chain security and dependency hygiene by:
+# 1. Running GitHub's official Dependency Review on pull requests
+#    - Detects and flags known-vulnerable packages added in PRs.
+#    - Optionally comments on the PR with a summary.
+# 2. Running `pnpm audit` and `better-npm-audit` on push/PR to critical branches
+#    - Ensures no critical/moderate vulnerabilities are introduced in dependencies.
+#
+# 🔁 Triggers:
+# - On push to: main, dev, staging
+# - On pull requests targeting: main, dev, staging
+#
+# 🔐 Related Docs:
+# - Dependency Review: https://github.com/actions/dependency-review-action
+# - Dependency Submission API: https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/using-the-dependency-submission-api
+# - Better Audit: https://github.com/IBM/better-npm-audit
+# ----------------------------------------------------------------------------------
+
 on:
   push:
     branches: [main, dev, staging]
   pull_request:
     branches: [main, dev, staging]
 
-# Dependency Review Action
-#
-# This Action will scan dependency manifest files that change as part of a Pull Request,
-# surfacing known-vulnerable versions of the packages declared or updated in the PR.
-# Once installed, if the workflow run is marked as required, PRs introducing known-vulnerable
-# packages will be blocked from merging.
-#
-# Source repository: https://github.com/actions/dependency-review-action
-# Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
-
-# If using a dependency submission action in this workflow this permission will need to be set to:
-#
-# permissions:
-#   contents: write
-#
-# https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/understanding-your-software-supply-chain/using-the-dependency-submission-api
+# Permissions required for this workflow to operate correctly
 permissions:
   contents: read
-  # Write permissions for pull-requests are required for using the `comment-summary-in-pr` option, comment out if you aren't using this option
+  # Required to allow posting audit summaries as PR comments
   pull-requests: write
 
 jobs:
+  # --------------------------------------
+  # 🔍 GitHub Dependency Review (Pull Requests Only)
+  #
+  # This job analyzes manifest file diffs and detects any added/updated dependencies
+  # with known vulnerabilities. Works only on PRs.
+  # --------------------------------------
   dependency-review:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
+
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
-        # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
-          comment-summary-in-pr: always
-          fail-on-severity: moderate
+          comment-summary-in-pr: always     # Leave a summary comment on the PR
+          fail-on-severity: moderate        # Fail if any vulnerable dep has severity >= moderate
+
+  # --------------------------------------
+  # 🛡️ pnpm Audit & better-npm-audit
+  #
+  # Runs on push and PR events. Performs security audits of the dependency tree
+  # using both native `pnpm audit` and IBM’s `better-npm-audit` for deeper checks.
+  # --------------------------------------
   dependency-audit:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,7 +72,7 @@ jobs:
         run: pnpm install
 
       - name: Run security audit
-        run: pnpm audit --audit-level moderate
+        run: pnpm audit --audit-level moderate  # Set desired threshold (low | moderate | high | critical)
 
       - name: Check for known vulnerabilities
         run: npx better-npm-audit audit --level moderate
