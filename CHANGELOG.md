@@ -34,12 +34,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## 1.1.0 (2025-06-09)
 
-
 ### Features
 
-* add initial GitHub repo folder structure for @plyaz/devtools ([ef254d7](https://github.com/Plyaz-Official/devtools/commit/ef254d7fbdd71a43aa01e7c25da4b2380b166bdf))
-
+- add initial GitHub repo folder structure for @plyaz/devtools ([ef254d7](https://github.com/Plyaz-Official/devtools/commit/ef254d7fbdd71a43aa01e7c25da4b2380b166bdf))
 
 ### Bug Fixes
 
-* update files to prevent issue with deploy workflow ([b917886](https://github.com/Plyaz-Official/devtools/commit/b917886fedacc0ac83748ec63ca366a358774641))
+- update files to prevent issue with deploy workflow ([b917886](https://github.com/Plyaz-Official/devtools/commit/b917886fedacc0ac83748ec63ca366a358774641))
