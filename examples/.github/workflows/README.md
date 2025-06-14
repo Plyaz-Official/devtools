@@ -24,6 +24,17 @@
   - Builds the app/service
   - Runs lint and tests
 - **Note:** Deployment steps can be added as needed to this workflow
+### 2. Deploy Workflow
+
+- **File:** `.github/workflows/security.yml`
+- **Trigger:** Push to `main`, `dev`, and `staging` branches
+- **What it does:**
+  - Checks out the repository
+  - Checks if 
+  - Installs dependencies (using `GITHUB_TOKEN` if needed)
+  - Builds the app/service
+  - Runs lint and tests
+- **Note:** Deployment steps can be added as needed to this workflow
 
 ---
 
