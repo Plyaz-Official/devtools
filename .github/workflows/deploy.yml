@@ -4,6 +4,8 @@ name: Install + Build + Deploy
 on:
   push:
     branches: [main, dev, staging]
+  pull_request:
+    branches: [main, dev, staging]
 
 permissions:
   contents: read
