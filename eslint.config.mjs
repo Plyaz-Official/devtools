@@ -1,3 +1,10 @@
-import base from './eslint/base.mjs'
+import { createBaseConfig } from './eslint/base.mjs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-export default base;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default createBaseConfig({
+  tsconfigDir: __dirname,
+});
