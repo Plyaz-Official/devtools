@@ -1,14 +1,12 @@
 import js from '@eslint/js';
-import nextPlugin from '@next/eslint-plugin-next';
-import reactPlugin from 'eslint-plugin-react';
-import reactHooksPlugin from 'eslint-plugin-react-hooks';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import tailwindcssPlugin from 'eslint-plugin-tailwindcss';
+import typescriptEslint from 'typescript-eslint';
+import nestjsTypedPlugin from '@darraghor/eslint-plugin-nestjs-typed';
+import securityPlugin from 'eslint-plugin-security';
 import unicornPlugin from 'eslint-plugin-unicorn';
 import importPlugin from 'eslint-plugin-import';
 import unusedImportsPlugin from 'eslint-plugin-unused-imports';
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
-import typescriptEslint from 'typescript-eslint';
+import nodePlugin from 'eslint-plugin-n';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,135 +15,71 @@ const __dirname = path.dirname(__filename);
 
 export default typescriptEslint.config(
   {
-    name: 'plyaz/frontend',
+    name: 'plyaz/backend',
     ignores: [
       '**/node_modules/**',
       '**/dist/**',
       '**/build/**',
-      '**/.next/**',
       '**/coverage/**',
       '**/*.min.js',
-      '**/public/**',
       '**/.turbo/**',
-      '**/.vercel/**',
-      '**/storybook-static/**',
-      '**/*.generated.{js,ts,tsx}',
+      '**/logs/**',
+      '**/*.generated.{js,ts}',
       '**/generated/**',
-      '**/next.config.js',
-      '**/tailwind.config.js',
-      '**/postcss.config.js',
+      '**/prisma/migrations/**',
+      '**/database/migrations/**',
+      '**/hardhat.config.ts',
     ],
   },
-  
-  // Base ESLint and TypeScript configuration
+
+  // Base configuration
   js.configs.recommended,
   ...typescriptEslint.configs.strict,
   ...typescriptEslint.configs.stylistic,
-  
-  // Next.js configuration
+
+  // NestJS specific configuration
   {
-    name: 'plyaz/next',
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    name: 'plyaz/nestjs',
+    files: ['**/*.{js,ts}'],
     plugins: {
-      '@next/next': nextPlugin,
+      '@darraghor/nestjs-typed': nestjsTypedPlugin,
     },
     rules: {
-      ...nextPlugin.configs.recommended.rules,
-      ...nextPlugin.configs['core-web-vitals'].rules,
+      // Use flat config rules from the plugin
+      ...nestjsTypedPlugin.configs.flatRecommended.rules,
+      
+      // Additional NestJS specific rules
+      '@darraghor/nestjs-typed/injectable-should-be-provided': 'error',
+      '@darraghor/nestjs-typed/param-decorator-name-matches-route-param': 'error',
+      '@darraghor/nestjs-typed/validate-nested-of-array-should-set-each': 'error',
+      '@darraghor/nestjs-typed/controllers-should-supply-api-tags': 'error',
+      '@darraghor/nestjs-typed/api-property-matches-property-optionality': 'error',
+      '@darraghor/nestjs-typed/api-enum-property-best-practices': 'error',
+      '@darraghor/nestjs-typed/api-property-returning-array-should-set-array': 'error',
+      '@darraghor/nestjs-typed/should-specify-forbid-unknown-values': 'error',
+      '@darraghor/nestjs-typed/validated-non-primitive-property-needs-type-decorator': 'error',
+      '@darraghor/nestjs-typed/use-validation-pipe': 'error',
     },
     settings: {
-      next: {
-        rootDir: '.',
+      '@darraghor/nestjs-typed': {
+        filterFromPaths: [
+          'node_modules',
+          '.eslintrc.js',
+          '*.spec.ts',
+          '*.test.ts',
+          'test/',
+          'tests/',
+          'migrations/',
+          'seeds/',
+        ],
       },
     },
   },
 
-  // React configuration
+  // TypeScript configuration for backend
   {
-    name: 'plyaz/react',
-    files: ['**/*.{jsx,tsx}'],
-    plugins: {
-      react: reactPlugin,
-      'react-hooks': reactHooksPlugin,
-      'jsx-a11y': jsxA11yPlugin,
-    },
-    languageOptions: {
-      parser: typescriptEslint.parser,
-      parserOptions: {
-        ecmaFeatures: {
-          jsx: true,
-        },
-      },
-    },
-    settings: {
-      react: {
-        version: 'detect',
-      },
-    },
-    rules: {
-      // React Core Rules
-      'react/react-in-jsx-scope': 'off', // Not needed in Next.js 13+
-      'react/prop-types': 'off', // Using TypeScript
-      'react/display-name': 'error',
-      'react/jsx-key': ['error', {
-        checkFragmentShorthand: true,
-        checkKeyMustBeforeSpread: true,
-        warnOnDuplicates: true,
-      }],
-      'react/jsx-no-target-blank': ['error', {
-        allowReferrer: false,
-        enforceDynamicLinks: 'always',
-        warnOnSpreadAttributes: true,
-      }],
-      'react/jsx-no-leaked-render': ['error', {
-        validStrategies: ['ternary', 'coerce'],
-      }],
-      'react/jsx-no-useless-fragment': ['error', {
-        allowExpressions: true,
-      }],
-      'react/no-array-index-key': 'error',
-      'react/no-danger': 'error',
-      'react/no-unstable-nested-components': ['error', {
-        allowAsProps: true,
-      }],
-      'react/self-closing-comp': ['error', {
-        component: true,
-        html: true,
-      }],
-      'react/jsx-no-bind': ['error', {
-        allowArrowFunctions: true,
-        allowBind: false,
-        allowFunctions: false,
-      }],
-
-      // React Hooks Rules
-      'react-hooks/rules-of-hooks': 'error',
-      'react-hooks/exhaustive-deps': 'error',
-
-      // Accessibility Rules (critical for Web3 platforms)
-      'jsx-a11y/alt-text': 'error',
-      'jsx-a11y/anchor-has-content': 'error',
-      'jsx-a11y/anchor-is-valid': 'error',
-      'jsx-a11y/aria-props': 'error',
-      'jsx-a11y/aria-proptypes': 'error',
-      'jsx-a11y/aria-role': 'error',
-      'jsx-a11y/click-events-have-key-events': 'error',
-      'jsx-a11y/heading-has-content': 'error',
-      'jsx-a11y/iframe-has-title': 'error',
-      'jsx-a11y/img-redundant-alt': 'error',
-      'jsx-a11y/interactive-supports-focus': 'error',
-      'jsx-a11y/label-has-associated-control': 'error',
-      'jsx-a11y/no-autofocus': 'error',
-      'jsx-a11y/no-redundant-roles': 'error',
-      'jsx-a11y/role-has-required-aria-props': 'error',
-      'jsx-a11y/tabindex-no-positive': 'error',
-    },
-  },
-
-  // TypeScript specific configuration
-  {
-    name: 'plyaz/typescript',
-    files: ['**/*.{ts,tsx}'],
+    name: 'plyaz/nestjs-typescript',
+    files: ['**/*.ts'],
     languageOptions: {
       parser: typescriptEslint.parser,
       parserOptions: {
@@ -154,7 +88,7 @@ export default typescriptEslint.config(
       },
     },
     rules: {
-      // Critical for Web3/Financial security
+      // Critical security rules for Web3/Financial platform
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unsafe-assignment': 'error',
       '@typescript-eslint/no-unsafe-call': 'error',
@@ -167,7 +101,9 @@ export default typescriptEslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/no-misused-promises': ['error', {
-        checksVoidReturn: false,
+        checksVoidReturn: {
+          attributes: false,
+        },
       }],
       '@typescript-eslint/require-await': 'error',
       '@typescript-eslint/return-await': ['error', 'always'],
@@ -183,50 +119,126 @@ export default typescriptEslint.config(
       '@typescript-eslint/method-signature-style': ['error', 'property'],
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
       '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+      '@typescript-eslint/explicit-function-return-type': ['error', {
+        allowExpressions: true,
+        allowTypedFunctionExpressions: true,
+        allowHigherOrderFunctions: true,
+        allowDirectConstAssertionInArrowFunctions: true,
+      }],
+      '@typescript-eslint/explicit-member-accessibility': ['error', {
+        accessibility: 'explicit',
+        overrides: {
+          constructors: 'off',
+          parameterProperties: 'explicit',
+        },
+      }],
+      '@typescript-eslint/member-ordering': ['error', {
+        default: [
+          'static-field',
+          'instance-field',
+          'static-initialization',
+          'constructor',
+          'static-method',
+          'instance-method',
+        ],
+      }],
       '@typescript-eslint/no-confusing-void-expression': ['error', {
         ignoreArrowShorthand: true,
+        ignoreVoidOperator: true,
       }],
       '@typescript-eslint/no-duplicate-type-constituents': 'error',
       '@typescript-eslint/no-import-type-side-effects': 'error',
+      '@typescript-eslint/no-invalid-void-type': 'error',
       '@typescript-eslint/no-meaningless-void-operator': 'error',
       '@typescript-eslint/no-mixed-enums': 'error',
       '@typescript-eslint/no-redundant-type-constituents': 'error',
+      '@typescript-eslint/no-require-imports': 'error',
       '@typescript-eslint/no-useless-empty-export': 'error',
+      '@typescript-eslint/parameter-properties': ['error', {
+        prefer: 'class-property',
+      }],
       '@typescript-eslint/prefer-enum-initializers': 'error',
       '@typescript-eslint/prefer-readonly': 'error',
+      '@typescript-eslint/prefer-readonly-parameter-types': 'off', // Too strict for NestJS
       '@typescript-eslint/prefer-regexp-exec': 'error',
       '@typescript-eslint/switch-exhaustiveness-check': 'error',
+      '@typescript-eslint/unified-signatures': 'error',
     },
   },
 
-  // Tailwind CSS configuration
+  // Security configuration - Critical for Web3/Financial platforms
   {
-    name: 'plyaz/tailwind',
-    files: ['**/*.{jsx,tsx}'],
+    name: 'plyaz/nestjs-security',
+    files: ['**/*.{js,ts}'],
     plugins: {
-      tailwindcss: tailwindcssPlugin,
+      security: securityPlugin,
     },
     rules: {
-      'tailwindcss/classnames-order': 'error',
-      'tailwindcss/enforces-negative-arbitrary-values': 'error',
-      'tailwindcss/enforces-shorthand': 'error',
-      'tailwindcss/migration-from-tailwind-2': 'error',
-      'tailwindcss/no-arbitrary-value': 'off', // Allow arbitrary values for custom designs
-      'tailwindcss/no-contradicting-classname': 'error',
-      'tailwindcss/no-custom-classname': 'off', // Allow custom classes
-    },
-    settings: {
-      tailwindcss: {
-        callees: ['cn', 'clsx', 'cva'],
-        config: './tailwind.config.js',
-      },
+      'security/detect-object-injection': 'error',
+      'security/detect-non-literal-regexp': 'error',
+      'security/detect-non-literal-fs-filename': 'error',
+      'security/detect-eval-with-expression': 'error',
+      'security/detect-pseudoRandomBytes': 'error',
+      'security/detect-possible-timing-attacks': 'error',
+      'security/detect-unsafe-regex': 'error',
+      'security/detect-buffer-noassert': 'error',
+      'security/detect-child-process': 'error',
+      'security/detect-disable-mustache-escape': 'error',
+      'security/detect-new-buffer': 'error',
+      'security/detect-no-csrf-before-method-override': 'error',
     },
   },
 
-  // Import and sorting configuration
+  // Node.js specific configuration
   {
-    name: 'plyaz/imports',
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    name: 'plyaz/nestjs-node',
+    files: ['**/*.{js,ts}'],
+    plugins: {
+      n: nodePlugin,
+    },
+    rules: {
+      'n/no-deprecated-api': 'error',
+      'n/no-extraneous-import': 'error',
+      'n/no-extraneous-require': 'error',
+      'n/no-missing-import': 'off', // Handled by TypeScript
+      'n/no-missing-require': 'off', // Handled by TypeScript
+      'n/no-unpublished-import': ['error', {
+        allowModules: [
+          '@nestjs/testing',
+          '@types/*',
+          'jest',
+          'supertest',
+          'ts-jest',
+          'ts-node',
+        ],
+      }],
+      'n/no-unpublished-require': ['error', {
+        allowModules: [
+          '@nestjs/testing',
+          '@types/*',
+          'jest',
+          'supertest',
+          'ts-jest',
+          'ts-node',
+        ],
+      }],
+      'n/no-unsupported-features/es-builtins': 'error',
+      'n/no-unsupported-features/es-syntax': 'off', // Using TypeScript
+      'n/no-unsupported-features/node-builtins': 'error',
+      'n/prefer-global/buffer': ['error', 'always'],
+      'n/prefer-global/console': ['error', 'always'],
+      'n/prefer-global/process': ['error', 'always'],
+      'n/prefer-global/url-search-params': ['error', 'always'],
+      'n/prefer-global/url': ['error', 'always'],
+      'n/prefer-promises/dns': 'error',
+      'n/prefer-promises/fs': 'error',
+    },
+  },
+
+  // Import organization for backend
+  {
+    name: 'plyaz/nestjs-imports',
+    files: ['**/*.{js,ts}'],
     plugins: {
       import: importPlugin,
       'unused-imports': unusedImportsPlugin,
@@ -239,24 +251,25 @@ export default typescriptEslint.config(
           project: './tsconfig.json',
         },
         node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx'],
+          extensions: ['.js', '.ts'],
         },
       },
     },
     rules: {
-      // Import organization for large codebase
       'simple-import-sort/imports': ['error', {
         groups: [
-          // React and Next.js first
-          ['^react', '^next'],
+          // Node.js built-ins
+          ['^node:'],
+          // NestJS imports
+          ['^@nestjs/'],
           // External packages
           ['^@?\\w'],
           // Internal packages (@plyaz/*)
           ['^(@plyaz)(/.*|$)'],
-          // Parent imports
-          ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
-          // Relative imports
-          ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
+          // Relative imports from parent directories
+          ['^\\.\\.(?!/?$)', '^\\.\\./?'],
+          // Relative imports from current directory
+          ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?'],
           // Side effect imports
           ['^\\u0000'],
         ],
@@ -270,16 +283,8 @@ export default typescriptEslint.config(
       'import/no-duplicates': ['error', { 'prefer-inline': true }],
       'import/first': 'error',
       'import/newline-after-import': 'error',
-      'import/no-anonymous-default-export': ['error', {
-        allowArray: false,
-        allowArrowFunction: false,
-        allowAnonymousClass: false,
-        allowAnonymousFunction: false,
-        allowCallExpression: true,
-        allowNew: false,
-        allowLiteral: false,
-        allowObject: false,
-      }],
+      'import/no-default-export': 'error', // Prefer named exports in backend
+      'import/prefer-default-export': 'off',
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': ['error', {
         vars: 'all',
@@ -290,10 +295,10 @@ export default typescriptEslint.config(
     },
   },
 
-  // Unicorn modern practices
+  // Unicorn modern practices for backend
   {
-    name: 'plyaz/unicorn',
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    name: 'plyaz/nestjs-unicorn',
+    files: ['**/*.{js,ts}'],
     plugins: {
       unicorn: unicornPlugin,
     },
@@ -308,7 +313,15 @@ export default typescriptEslint.config(
           'README.md',
           'CHANGELOG.md',
           'LICENSE',
-          '\\.d\\.ts$',
+          '\\.d\\.ts',
+          '\\.module\\.ts',
+          '\\.controller\\.ts',
+          '\\.service\\.ts',
+          '\\.guard\\.ts',
+          '\\.interceptor\\.ts',
+          '\\.pipe\\.ts',
+          '\\.decorator\\.ts',
+          '\\.filter\\.ts',
         ],
       }],
       'unicorn/prevent-abbreviations': ['error', {
@@ -331,20 +344,31 @@ export default typescriptEslint.config(
           api: true,
           src: true,
           dist: true,
-          btn: true,
-          nav: true,
           lib: true,
           pkg: true,
           addr: true,
+          dto: true,
+          Dto: true,
+          DTO: true,
+          id: true,
+          Id: true,
+          ID: true,
+          url: true,
+          URL: true,
+          jwt: true,
+          JWT: true,
+          uuid: true,
+          UUID: true,
         },
       }],
-      'unicorn/no-null': 'off', // Allow null in React
-      'unicorn/prefer-top-level-await': 'off', // Not compatible with Next.js
+      'unicorn/no-null': 'off', // Allow null in database operations
+      'unicorn/prefer-top-level-await': 'off', // Not always suitable for NestJS
       'unicorn/prefer-module': 'off', // Allow CommonJS in config files
-      'unicorn/no-array-reduce': 'off', // Reduce is useful
+      'unicorn/no-array-reduce': 'off', // Reduce is useful for data processing
       'unicorn/no-await-expression-member': 'off',
       'unicorn/prefer-ternary': 'off',
       'unicorn/consistent-function-scoping': 'off',
+      'unicorn/no-process-exit': 'off', // Needed in NestJS apps
       'unicorn/no-nested-ternary': 'error',
       'unicorn/better-regex': 'error',
       'unicorn/catch-error-name': ['error', { name: 'error' }],
@@ -362,7 +386,7 @@ export default typescriptEslint.config(
       'unicorn/no-lonely-if': 'error',
       'unicorn/no-new-array': 'error',
       'unicorn/no-new-buffer': 'error',
-      'unicorn/no-static-only-class': 'error',
+      'unicorn/no-static-only-class': 'off', // NestJS modules can be static-only
       'unicorn/no-thenable': 'error',
       'unicorn/no-this-assignment': 'error',
       'unicorn/no-unreadable-array-destructuring': 'error',
@@ -391,9 +415,9 @@ export default typescriptEslint.config(
       'unicorn/prefer-date-now': 'error',
       'unicorn/prefer-default-parameters': 'error',
       'unicorn/prefer-includes': 'error',
-      'unicorn/prefer-keyboard-event-key': 'error',
+      'unicorn/prefer-keyboard-event-key': 'off', // Not relevant for backend
       'unicorn/prefer-math-trunc': 'error',
-      'unicorn/prefer-modern-dom-apis': 'error',
+      'unicorn/prefer-modern-dom-apis': 'off', // Not relevant for backend
       'unicorn/prefer-modern-math-apis': 'error',
       'unicorn/prefer-native-coercion-functions': 'error',
       'unicorn/prefer-negative-index': 'error',
@@ -401,7 +425,7 @@ export default typescriptEslint.config(
       'unicorn/prefer-object-from-entries': 'error',
       'unicorn/prefer-optional-catch-binding': 'error',
       'unicorn/prefer-prototype-methods': 'error',
-      'unicorn/prefer-query-selector': 'error',
+      'unicorn/prefer-query-selector': 'off', // Not relevant for backend
       'unicorn/prefer-reflect-apply': 'error',
       'unicorn/prefer-regexp-test': 'error',
       'unicorn/prefer-set-has': 'error',
@@ -422,12 +446,12 @@ export default typescriptEslint.config(
     },
   },
 
-  // General best practices
+  // General best practices for backend
   {
-    name: 'plyaz/best-practices',
-    files: ['**/*.{js,jsx,ts,tsx}'],
+    name: 'plyaz/nestjs-best-practices',
+    files: ['**/*.{js,ts}'],
     rules: {
-      // Security and best practices for Web3
+      // Security and reliability for financial platform
       'prefer-const': 'error',
       'no-var': 'error',
       'object-shorthand': ['error', 'always'],
@@ -440,7 +464,7 @@ export default typescriptEslint.config(
       'prefer-template': 'error',
       'template-curly-spacing': ['error', 'never'],
       'no-console': ['warn', {
-        allow: ['warn', 'error'],
+        allow: ['warn', 'error', 'info'], // Allow info for structured logging
       }],
       'no-debugger': 'error',
       'no-alert': 'error',
@@ -487,7 +511,7 @@ export default typescriptEslint.config(
       }],
       'block-scoped-var': 'error',
       'complexity': ['warn', {
-        max: 10,
+        max: 15, // Slightly higher for backend business logic
       }],
       'consistent-return': 'error',
       'default-case': 'error',
@@ -503,6 +527,13 @@ export default typescriptEslint.config(
       'no-iterator': 'error',
       'no-labels': 'error',
       'no-loop-func': 'error',
+      'no-magic-numbers': ['warn', {
+        ignore: [-1, 0, 1, 2, 10, 100, 1000],
+        ignoreArrayIndexes: true,
+        ignoreDefaultValues: true,
+        detectObjects: false,
+        enforceConst: true,
+      }],
       'no-param-reassign': ['error', {
         props: true,
         ignorePropertyModificationsFor: [
@@ -516,12 +547,14 @@ export default typescriptEslint.config(
           'response',
           'state',
           'draft',
+          'ctx',
+          'context',
         ],
       }],
       'no-proto': 'error',
       'no-undef-init': 'error',
       'no-underscore-dangle': ['error', {
-        allow: ['_id', '__dirname', '__filename'],
+        allow: ['_id', '__dirname', '__filename', '_metadata'],
         allowAfterThis: false,
         allowAfterSuper: false,
         enforceInMethodNames: true,
@@ -537,63 +570,74 @@ export default typescriptEslint.config(
       'spaced-comment': ['error', 'always', {
         line: {
           exceptions: ['-', '+'],
-          markers: ['=', '!', '/'],
+          markers: ['=', '!', '/', 'TODO', 'FIXME', 'NOTE'],
         },
         block: {
           exceptions: ['-', '+'],
-          markers: ['=', '!', ':', '::'],
+          markers: ['=', '!', ':', '::', 'TODO', 'FIXME', 'NOTE'],
           balanced: true,
         },
       }],
+      
+      // Additional rules for API development
+      'no-duplicate-imports': 'error',
+      'no-unreachable': 'error',
+      'no-unreachable-loop': 'error',
+      'require-atomic-updates': 'error',
+      'use-isnan': 'error',
+      'valid-typeof': 'error',
     },
   },
 
   // Overrides for specific file patterns
   {
-    name: 'plyaz/config-files',
+    name: 'plyaz/nestjs-config-files',
     files: [
       '**/*.config.{js,ts}',
       '**/config/*.{js,ts}',
-      '**/next.config.js',
-      '**/tailwind.config.js',
-      '**/postcss.config.js',
+      '**/jest.config.{js,ts}',
+      '**/webpack.config.{js,ts}',
+      '**/prisma.config.{js,ts}',
     ],
     rules: {
       'import/no-default-export': 'off',
       '@typescript-eslint/no-var-requires': 'off',
       'unicorn/prefer-module': 'off',
+      'no-magic-numbers': 'off',
     },
   },
 
   {
-    name: 'plyaz/pages-and-app-router',
+    name: 'plyaz/nestjs-main-files',
     files: [
-      'app/**/*.{js,jsx,ts,tsx}',
-      'pages/**/*.{js,jsx,ts,tsx}',
-      'src/app/**/*.{js,jsx,ts,tsx}',
-      'src/pages/**/*.{js,jsx,ts,tsx}',
+      '**/main.ts',
+      '**/bootstrap.ts',
+      '**/app.module.ts',
     ],
     rules: {
-      'import/no-default-export': 'off',
-      'import/prefer-default-export': 'error',
+      'no-console': 'off', // Allow console in main files for startup logs
+      'unicorn/no-process-exit': 'off',
     },
   },
 
   {
-    name: 'plyaz/type-definitions',
+    name: 'plyaz/nestjs-type-definitions',
     files: ['**/*.d.ts'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       'import/no-default-export': 'off',
+      '@typescript-eslint/consistent-type-definitions': 'off',
     },
   },
 
   // Test files
   {
-    name: 'plyaz/test-files',
+    name: 'plyaz/nestjs-test-files',
     files: [
-      '**/__tests__/**/*.{js,jsx,ts,tsx}',
-      '**/*.{test,spec}.{js,jsx,ts,tsx}',
+      '**/__tests__/**/*.{js,ts}',
+      '**/*.{test,spec}.{js,ts}',
+      '**/test/**/*.{js,ts}',
+      '**/tests/**/*.{js,ts}',
     ],
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
@@ -601,7 +645,29 @@ export default typescriptEslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
       'no-console': 'off',
+      'no-magic-numbers': 'off',
+      'max-classes-per-file': 'off',
+      '@darraghor/nestjs-typed/injectable-should-be-provided': 'off',
+      'import/no-default-export': 'off',
+    },
+  },
+
+  // Database and migration files
+  {
+    name: 'plyaz/nestjs-database-files',
+    files: [
+      '**/migrations/**/*.{js,ts}',
+      '**/seeds/**/*.{js,ts}',
+      '**/database/**/*.{js,ts}',
+      '**/prisma/**/*.{js,ts}',
+    ],
+    rules: {
+      'no-magic-numbers': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'unicorn/filename-case': 'off',
+      'import/no-default-export': 'off',
     },
   }
 );
