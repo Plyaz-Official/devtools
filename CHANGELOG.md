@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.2.0 (2025-06-15)
+
+
+### Features
+
+* Added `tailwind.config` under configs ([e4c28c0](https://github.com/Plyaz-Official/devtools/commit/e4c28c08b74b9dd4b49d1a741a65c2aafd52b909))
+
 ### 1.1.18 (2025-06-14)
 
 ### 1.1.17 (2025-06-14)
