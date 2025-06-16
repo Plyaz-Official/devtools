@@ -3,9 +3,9 @@
  */
 
 interface AthleteProfile {
-  id: string;
-  name: string;
-  tokenPrice: number;
+  readonly id: string;
+  readonly name: string;
+  readonly tokenPrice: number;
 }
 
 /**
@@ -13,9 +13,10 @@ interface AthleteProfile {
  * @param athletes - Array of athlete profiles.
  * @param userTokens - User's token holdings.
  * @returns Total portfolio value in USD.
+ * @example `calculatePortfolioValue([{ id: 'athlete1', name: 'Athlete 1', tokenPrice: 10 }], { tokenCount: 10 }]) => 100`
  */
 export function calculatePortfolioValue(
-  athletes: AthleteProfile[],
+  athletes: readonly AthleteProfile[],
   userTokens: Record<string, number>
 ): number {
   let totalValue = 0;
