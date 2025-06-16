@@ -15,6 +15,7 @@ export class TokenPriceService {
    * @param volume - Trading volume in last 24h.
    * @param marketCap - Total market capitalization.
    * @returns Updated token price.
+   * @example `calculateTokenPrice(100, 1000000, 1000000000000)` returns 101.
    */
   public calculateTokenPrice(currentPrice: number, volume: number, marketCap: number): number {
     const volumeRatio = volume / marketCap;
