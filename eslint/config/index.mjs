@@ -11,6 +11,11 @@ import promisePlugin from 'eslint-plugin-promise';
 import sonarjsPlugin from 'eslint-plugin-sonarjs';
 import regexpPlugin from 'eslint-plugin-regexp';
 import functionalPlugin from 'eslint-plugin-functional';
+import markdownlintPlugin from 'eslint-plugin-markdownlint';
+import * as mdxPlugin from 'eslint-plugin-mdx';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import reactPlugin from 'eslint-plugin-react';
+import { parser as mdxParser } from 'eslint-mdx';
 import process from 'node:process';
 
 /**
@@ -367,6 +372,9 @@ export function createJSDocConfig() {
     rules: {
       'jsdoc/check-access': 'error',
       'jsdoc/check-alignment': 'error',
+      'jsdoc/check-examples': 'off',
+      'jsdoc/check-indentation': 'error',
+      'jsdoc/check-line-alignment': 'error',
       'jsdoc/check-param-names': 'error',
       'jsdoc/check-property-names': 'error',
       'jsdoc/check-tag-names': 'error',
@@ -375,9 +383,10 @@ export function createJSDocConfig() {
       'jsdoc/empty-tags': 'error',
       'jsdoc/implements-on-classes': 'error',
       'jsdoc/multiline-blocks': 'error',
+      'jsdoc/no-blank-block-descriptions': 'error',
       'jsdoc/no-multi-asterisks': 'error',
       'jsdoc/no-undefined-types': 'error',
-
+      'jsdoc/require-jsdoc': 'error',
       // Require JSDoc for all important code structures
       'jsdoc/require-description': [
         'error',
@@ -438,7 +447,7 @@ export function createJSDocConfig() {
       'jsdoc/require-returns': 'error',
       'jsdoc/require-returns-check': 'error',
       'jsdoc/require-returns-description': 'error',
-      'jsdoc/require-returns-type': 'off', // Using TypeScript
+      'jsdoc/require-returns-type': 'error', // Using TypeScript
 
       // Exception documentation
       'jsdoc/require-throws': 'error',
@@ -1371,21 +1380,164 @@ export function createCommonOverrides() {
       },
     },
 
+    // JSON
+    createJSONConfig(),
+
     // Markdown files
+    ...createMarkdownConfig(),
+  ];
+}
+
+/**
+ * Markdown and MDX configuration for documentation quality.
+ */
+export function createMarkdownConfig() {
+  return [
+    // Standard Markdown files
     {
-      name: 'plyaz/shared-markdown',
-      files: ['**/*.md', '**/*.mdx'],
+      name: 'plyaz/markdown',
+      files: ['**/*.md'],
+      plugins: {
+        markdownlint: markdownlintPlugin,
+      },
       rules: {
-        // Disable all rules for markdown files
+        // Document structure
+        'markdownlint/md001': 'error', // Heading levels increment by one
+        'markdownlint/md003': ['error', { style: 'atx' }], // Heading style
+        'markdownlint/md004': ['error', { style: 'dash' }], // Unordered list style
+        'markdownlint/md005': 'error', // Inconsistent indentation
+        'markdownlint/md007': ['error', { indent: 2 }], // Unordered list indentation
+        'markdownlint/md009': 'error', // Trailing spaces
+        'markdownlint/md010': 'error', // Hard tabs
+        'markdownlint/md011': 'error', // Reversed link syntax
+        'markdownlint/md012': ['error', { maximum: 2 }], // Multiple consecutive blank lines
+        'markdownlint/md013': ['warn', { line_length: 120 }], // Line length
+        'markdownlint/md014': 'error', // Dollar signs used before commands
+        'markdownlint/md018': 'error', // No space after hash on atx style heading
+        'markdownlint/md019': 'error', // Multiple spaces after hash on atx style heading
+        'markdownlint/md020': 'error', // No space inside hashes on closed atx style heading
+        'markdownlint/md021': 'error', // Multiple spaces inside hashes on closed atx style heading
+        'markdownlint/md022': ['error', { lines_above: 1, lines_below: 1 }], // Headings surrounded by blank lines
+        'markdownlint/md023': 'error', // Headings must start at the beginning of the line
+        'markdownlint/md024': ['error', { allow_different_nesting: true }], // Multiple headings with the same content
+        'markdownlint/md025': ['error', { level: 1 }], // Multiple top level headings
+        'markdownlint/md026': ['error', { punctuation: '.,;:!?' }], // Trailing punctuation in heading
+        'markdownlint/md027': 'error', // Multiple spaces after blockquote symbol
+        'markdownlint/md028': 'error', // Blank line inside blockquote
+        'markdownlint/md029': ['error', { style: 'ordered' }], // Ordered list item prefix
+        'markdownlint/md030': ['error', { ul_single: 1, ul_multi: 1, ol_single: 1, ol_multi: 1 }], // Spaces after list markers
+        'markdownlint/md031': 'error', // Fenced code blocks surrounded by blank lines
+        'markdownlint/md032': 'error', // Lists surrounded by blank lines
+        'markdownlint/md033': ['warn', { allowed_elements: ['br', 'details', 'summary'] }], // Inline HTML
+        'markdownlint/md034': 'error', // Bare URL used
+        'markdownlint/md035': ['error', { style: '---' }], // Horizontal rule style
+        'markdownlint/md036': 'error', // Emphasis used instead of a heading
+        'markdownlint/md037': 'error', // Spaces inside emphasis markers
+        'markdownlint/md038': 'error', // Spaces inside code span elements
+        'markdownlint/md039': 'error', // Spaces inside link text
+        'markdownlint/md040': 'error', // Fenced code blocks should have a language
+        'markdownlint/md041': ['error', { level: 1 }], // First line in file should be a top level heading
+        'markdownlint/md042': 'error', // No empty links
+        'markdownlint/md043': 'off', // Required heading structure - too restrictive
+        'markdownlint/md044': [
+          'error',
+          { names: ['JavaScript', 'TypeScript', 'React', 'Next.js', 'NestJS', 'Web3', 'Ethereum'] },
+        ], // Proper names should have correct capitalization
+        'markdownlint/md045': 'error', // Images should have alternate text
+        'markdownlint/md046': ['error', { style: 'fenced' }], // Code block style
+        'markdownlint/md047': 'error', // File should end with a single newline
+        'markdownlint/md048': ['error', { style: 'backtick' }], // Code fence style
+        'markdownlint/md049': ['error', { style: 'underscore' }], // Emphasis style
+        'markdownlint/md050': ['error', { style: 'asterisk' }], // Strong style
+        'markdownlint/md051': 'error', // Link fragments should be valid
+        'markdownlint/md052': 'error', // Reference links and images should use a label
+        'markdownlint/md053': 'error', // Link and image reference definitions should be needed
       },
     },
 
-    // Package.json files
+    // MDX files (React components in Markdown)
     {
-      name: 'plyaz/shared-package-json',
-      files: ['**/package.json'],
+      name: 'plyaz/mdx',
+      files: ['**/*.mdx'],
+      plugins: {
+        mdx: mdxPlugin,
+        react: reactPlugin,
+        'jsx-a11y': jsxA11yPlugin,
+      },
+      languageOptions: {
+        parser: mdxParser,
+        parserOptions: {
+          ecmaFeatures: {
+            jsx: true,
+          },
+        },
+      },
+      settings: {
+        react: {
+          version: 'detect',
+        },
+      },
       rules: {
-        // Disable all rules for package.json files
+        // React rules for JSX in MDX
+        'react/react-in-jsx-scope': 'off', // Not needed in MDX
+        'react/prop-types': 'off', // Using TypeScript
+        'react/display-name': 'off', // Anonymous components are OK in docs
+        'react/jsx-key': 'warn', // Less strict for documentation
+        'react/jsx-no-target-blank': [
+          'error',
+          {
+            allowReferrer: false,
+            enforceDynamicLinks: 'always',
+          },
+        ],
+        'react/jsx-no-undef': 'error',
+        'react/jsx-uses-react': 'error',
+        'react/jsx-uses-vars': 'error',
+        'react/no-unescaped-entities': [
+          'error',
+          {
+            forbid: ['>', '"', '}'],
+          },
+        ],
+
+        // Accessibility for documentation
+        'jsx-a11y/alt-text': 'error',
+        'jsx-a11y/anchor-has-content': 'error',
+        'jsx-a11y/anchor-is-valid': 'error',
+        'jsx-a11y/heading-has-content': 'error',
+        'jsx-a11y/iframe-has-title': 'error',
+        'jsx-a11y/img-redundant-alt': 'error',
+        'jsx-a11y/no-redundant-roles': 'error',
+
+        // MDX specific rules
+        'mdx/no-unused-expressions': 'error',
+        'mdx/no-jsx-html-comments': 'error',
+      },
+    },
+
+    // Documentation-specific rules for both MD and MDX
+    {
+      name: 'plyaz/documentation-quality',
+      files: ['**/*.{md,mdx}'],
+      rules: {
+        // Custom rules for documentation quality
+        'no-restricted-syntax': [
+          'error',
+          {
+            selector: 'Literal[value=/^(TODO|FIXME|HACK)/i]',
+            message:
+              'Documentation should not contain TODO/FIXME comments. Complete or remove them.',
+          },
+          {
+            selector: 'Literal[value=/lorem ipsum/i]',
+            message: 'Replace placeholder text with actual content.',
+          },
+          {
+            selector: 'Literal[value=/\\.(png|jpg|jpeg|gif|svg)$/][value!=/^https?:/]',
+            message:
+              'Use absolute URLs for images in documentation or place in public/docs folder.',
+          },
+        ],
       },
     },
   ];

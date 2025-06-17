@@ -1,6 +1,4 @@
-/**
- * Example of backend to test eslint, prettier.
- */
+//  Example of backend to test eslint, prettier.
 
 import { Injectable } from '@nestjs/common';
 
@@ -14,7 +12,7 @@ export class TokenPriceService {
    * @param currentPrice - Current token price.
    * @param volume - Trading volume in last 24h.
    * @param marketCap - Total market capitalization.
-   * @returns Updated token price.
+   * @returns {number} Updated token price.
    * @example `calculateTokenPrice(100, 1000000, 1000000000000)` returns 101.
    */
   public calculateTokenPrice(currentPrice: number, volume: number, marketCap: number): number {
