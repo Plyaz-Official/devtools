@@ -19,6 +19,9 @@
     "noEmit": true,
     "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "allowJs": true,
     "outDir": "dist"
   },
   "include": ["src", "configs", "storybook"],

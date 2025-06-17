@@ -4,7 +4,7 @@
   "description": "Internal development tools and utilities for the Plyaz ecosystem, including debugging helpers, shared configs, and dev-time enhancements.",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -b",
+    "build": "pnpm clean && tsc -p tsconfig.json",
     "test": "vitest run",
     "release:publish": "pnpm publish --access public",
     "publish:ci": "pnpm publish --access public --no-git-checks",
@@ -13,12 +13,31 @@
     "format": "prettier --write './**/*.{js,ts,tsx,js,jsx,mjs,cjs}'",
     "format:check": "prettier --check './**/*.{js,ts,tsx,js,jsx,mjs,cjs}'",
     "type:check": "tsc --noEmit",
+    "clean": "rm -rf dist",
     "release": "standard-version"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
+  "exports": {
+    "./configs/next.config": {
+      "import": "./dist/configs/next.config.js",
+      "types": "./configs/next.config.ts"
+    },
+    "./configs/tailwind.config": {
+      "import": "./dist/configs/tailwind.config.js",
+      "types": "./configs/tailwind.config.ts"
+    },
+    "./configs/vitest.config": {
+      "import": "./dist/configs/vitest.config.js",
+      "types": "./configs/vitest.config.ts"
+    },
+    "./configs/vitest.setup": {
+      "import": "./dist/configs/vitest.setup.js",
+      "types": "./configs/vitest.setup.ts"
+    }
+  },
   "devDependencies": {
     "@darraghor/eslint-plugin-nestjs-typed": "^6.6.2",
     "@eslint/eslintrc": "^3.2.0",
