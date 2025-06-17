@@ -20,24 +20,6 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
-  "exports": {
-    "./configs/next.config": {
-      "import": "./dist/configs/next.config.js",
-      "types": "./configs/next.config.ts"
-    },
-    "./configs/tailwind.config": {
-      "import": "./dist/configs/tailwind.config.js",
-      "types": "./configs/tailwind.config.ts"
-    },
-    "./configs/vitest.config": {
-      "import": "./dist/configs/vitest.config.js",
-      "types": "./configs/vitest.config.ts"
-    },
-    "./configs/vitest.setup": {
-      "import": "./dist/configs/vitest.setup.js",
-      "types": "./configs/vitest.setup.ts"
-    }
-  },
   "devDependencies": {
     "@darraghor/eslint-plugin-nestjs-typed": "^6.6.2",
     "@eslint/eslintrc": "^3.2.0",
