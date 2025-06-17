@@ -254,7 +254,7 @@ export function createSharedPackageTypeScriptConfig({ tsconfigDir = process.cwd(
         },
       ],
     },
-    ...createNamingConventionsConfig()
+    ...createNamingConventionsConfig(),
   };
 }
 
