@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.2.4 (2025-06-17)
+
+
+### Bug Fixes
+
+* Fix tailwindcss eslint ([6c09137](https://github.com/Plyaz-Official/devtools/commit/6c0913704257e115b490b0328b81bf7919dca115))
+
 ### 1.2.3 (2025-06-17)
 
 ### 1.2.2 (2025-06-17)
