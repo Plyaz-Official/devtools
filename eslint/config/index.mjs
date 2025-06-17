@@ -254,6 +254,7 @@ export function createSharedPackageTypeScriptConfig({ tsconfigDir = process.cwd(
         },
       ],
     },
+    ...createNamingConventionsConfig(),
   };
 }
 
@@ -705,7 +706,6 @@ export function createUnicornConfig(options = {}) {
       'unicorn/no-thenable': 'error',
       'unicorn/no-this-assignment': 'error',
       'unicorn/no-unreadable-array-destructuring': 'error',
-      'unicorn/no-unsafe-regex': 'error',
       'unicorn/no-unused-properties': 'error',
       'unicorn/no-useless-fallback-in-spread': 'error',
       'unicorn/no-useless-length-check': 'error',
@@ -826,7 +826,7 @@ export function createImportConfig({ tsconfigDir = process.cwd(), backend = fals
       ],
       'simple-import-sort/exports': 'error',
       'import/no-unresolved': 'error',
-      'import/no-cycle': ['error', { maxDepth: 10 }],
+      'import/no-cycle': ['error', { maxDepth: 10, ignoreExternal: true }],
       'import/no-self-import': 'error',
       'import/no-useless-path-segments': 'error',
       'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
@@ -975,9 +975,6 @@ export function createBestPracticesConfig(options = {}) {
           ignoreDefaultValues: true,
           detectObjects: false,
           enforceConst: true,
-          ignoreEnums: true,
-          ignoreNumericLiteralTypes: true,
-          ignoreReadonlyClassProperties: true,
         },
       ],
       'no-param-reassign': [
@@ -1522,7 +1519,6 @@ export function createFunctionalConfig(options = {}) {
       'functional/prefer-readonly-type': 'warn',
 
       // Function purity
-      'functional/no-method-signature': 'error',
       'functional/no-this-expressions': 'off', // Allow this in classes
       'functional/no-try-statements': 'off', // Allow try/catch for error handling
 
@@ -1644,9 +1640,6 @@ export function createWeb3Config() {
           ignoreDefaultValues: true,
           detectObjects: false,
           enforceConst: true,
-          ignoreEnums: true,
-          ignoreNumericLiteralTypes: true,
-          ignoreReadonlyClassProperties: true,
           ignoreClassFieldInitialValues: true,
         },
       ],

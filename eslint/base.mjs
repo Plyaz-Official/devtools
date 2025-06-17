@@ -15,7 +15,6 @@ import {
   createImportConfig,
   createUnicornConfig,
   createBestPracticesConfig,
-  createNamingConventionsConfig,
   createJSONConfig,
   createFileNamingConfig,
   createCommonOverrides,
@@ -60,7 +59,6 @@ export function createBaseConfig({ tsconfigDir = process.cwd() } = {}) {
     createBestPracticesConfig({
       complexityMax: 8, // Lower for shared utilities
     }),
-    createNamingConventionsConfig(),
     createJSONConfig(),
     createFileNamingConfig(),
 
