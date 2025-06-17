@@ -13,7 +13,7 @@ import regexpPlugin from 'eslint-plugin-regexp';
 import functionalPlugin from 'eslint-plugin-functional';
 import markdownlintPlugin from 'eslint-plugin-markdownlint';
 import * as mdxPlugin from 'eslint-plugin-mdx';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y'
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import reactPlugin from 'eslint-plugin-react';
 import { parser as mdxParser } from 'eslint-mdx';
 import process from 'node:process';
@@ -1439,7 +1439,10 @@ export function createMarkdownConfig() {
         'markdownlint/md041': ['error', { level: 1 }], // First line in file should be a top level heading
         'markdownlint/md042': 'error', // No empty links
         'markdownlint/md043': 'off', // Required heading structure - too restrictive
-        'markdownlint/md044': ['error', { names: ['JavaScript', 'TypeScript', 'React', 'Next.js', 'NestJS', 'Web3', 'Ethereum'] }], // Proper names should have correct capitalization
+        'markdownlint/md044': [
+          'error',
+          { names: ['JavaScript', 'TypeScript', 'React', 'Next.js', 'NestJS', 'Web3', 'Ethereum'] },
+        ], // Proper names should have correct capitalization
         'markdownlint/md045': 'error', // Images should have alternate text
         'markdownlint/md046': ['error', { style: 'fenced' }], // Code block style
         'markdownlint/md047': 'error', // File should end with a single newline
@@ -1480,16 +1483,22 @@ export function createMarkdownConfig() {
         'react/prop-types': 'off', // Using TypeScript
         'react/display-name': 'off', // Anonymous components are OK in docs
         'react/jsx-key': 'warn', // Less strict for documentation
-        'react/jsx-no-target-blank': ['error', {
-          allowReferrer: false,
-          enforceDynamicLinks: 'always',
-        }],
+        'react/jsx-no-target-blank': [
+          'error',
+          {
+            allowReferrer: false,
+            enforceDynamicLinks: 'always',
+          },
+        ],
         'react/jsx-no-undef': 'error',
         'react/jsx-uses-react': 'error',
         'react/jsx-uses-vars': 'error',
-        'react/no-unescaped-entities': ['error', {
-          forbid: ['>', '"', '}'],
-        }],
+        'react/no-unescaped-entities': [
+          'error',
+          {
+            forbid: ['>', '"', '}'],
+          },
+        ],
 
         // Accessibility for documentation
         'jsx-a11y/alt-text': 'error',
@@ -1516,7 +1525,8 @@ export function createMarkdownConfig() {
           'error',
           {
             selector: 'Literal[value=/^(TODO|FIXME|HACK)/i]',
-            message: 'Documentation should not contain TODO/FIXME comments. Complete or remove them.',
+            message:
+              'Documentation should not contain TODO/FIXME comments. Complete or remove them.',
           },
           {
             selector: 'Literal[value=/lorem ipsum/i]',
@@ -1524,7 +1534,8 @@ export function createMarkdownConfig() {
           },
           {
             selector: 'Literal[value=/\\.(png|jpg|jpeg|gif|svg)$/][value!=/^https?:/]',
-            message: 'Use absolute URLs for images in documentation or place in public/docs folder.',
+            message:
+              'Use absolute URLs for images in documentation or place in public/docs folder.',
           },
         ],
       },
