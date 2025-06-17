@@ -47,6 +47,9 @@ importers:
       eslint-mdx:
         specifier: ^3.5.0
         version: 3.5.0(eslint@9.29.0(jiti@2.4.2))
+      eslint-plugin-better-tailwindcss:
+        specifier: 3.2.1
+        version: 3.2.1(eslint@9.29.0(jiti@2.4.2))(tailwindcss@3.4.17)
       eslint-plugin-functional:
         specifier: ^4.4.1
         version: 4.4.1(eslint@9.29.0(jiti@2.4.2))(tsutils@3.21.0(typescript@5.8.3))(typescript@5.8.3)
@@ -95,9 +98,6 @@ importers:
       eslint-plugin-sonarjs:
         specifier: ^0.23.0
         version: 0.23.0(eslint@9.29.0(jiti@2.4.2))
-      eslint-plugin-tailwindcss:
-        specifier: ^3.18.0
-        version: 3.18.0(tailwindcss@3.4.17)
       eslint-plugin-testing-library:
         specifier: ^6.5.0
         version: 6.5.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3)
@@ -338,6 +338,10 @@ packages:
   '@eslint/core@0.14.0':
     resolution: {integrity: sha512-qIbV0/JZr7iSDjqAc60IqbLdsj9GDt16xQtWD+B78d/HAlvysGdZZ6rpJHGAc2T0FQx1X6thsSPdnoiGKdNtdg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@eslint/css-tree@3.6.1':
+    resolution: {integrity: sha512-5DIsBME23tUQD5zHD+T38lC2DG4jB8x8JRa+yDncLne2TIZA0VuCpcSazOX1EC+sM/q8w24qeevXfmfsIxAeqA==}
+    engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0}
 
   '@eslint/eslintrc@3.3.1':
     resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
@@ -1521,6 +1525,13 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
 
+  eslint-plugin-better-tailwindcss@3.2.1:
+    resolution: {integrity: sha512-27nz5M810LJbMOX7LwV4jEe1JtRqSOvVw1K1SshodeA26DLUewXSEI0PSZI0cOWl9Pp3WI39qdmI0dMDpFe2Rg==}
+    engines: {node: '>=v20.11.0'}
+    peerDependencies:
+      eslint: ^7.0.0 || ^8.0.0 || ^9.0.0
+      tailwindcss: ^3.3.0 || ^4.0.0
+
   eslint-plugin-es-x@7.8.0:
     resolution: {integrity: sha512-7Ds8+wAAoV3T+LAKeu39Y5BzXCrGKrcISfgKEqTS4BDN8SFEDQd0S43jiQ8vIa3wUKD07qitZdfzlenSi8/0qQ==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -1637,12 +1648,6 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       eslint: ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0
-
-  eslint-plugin-tailwindcss@3.18.0:
-    resolution: {integrity: sha512-PQDU4ZMzFH0eb2DrfHPpbgo87Zgg2EXSMOj1NSfzdZm+aJzpuwGerfowMIaVehSREEa0idbf/eoNYAOHSJoDAQ==}
-    engines: {node: '>=18.12.0'}
-    peerDependencies:
-      tailwindcss: ^3.4.0
 
   eslint-plugin-testing-library@6.5.0:
     resolution: {integrity: sha512-Ls5TUfLm5/snocMAOlofSOJxNN0aKqwTlco7CrNtMjkTdQlkpSMaeTCDHCuXfzrI97xcx2rSCNeKeJjtpkNC1w==}
@@ -2443,6 +2448,9 @@ packages:
   mdast-util-to-string@4.0.0:
     resolution: {integrity: sha512-0H44vDimn51F0YwvxSJSm0eCDOJTRlmN0R1yBh4HLj9wiV1Dn0QoXGbvFAWj2hSItVTlCmBF1hqKlIyUBVFLPg==}
 
+  mdn-data@2.21.0:
+    resolution: {integrity: sha512-+ZKPQezM5vYJIkCxaC+4DTnRrVZR1CgsKLu5zsQERQx6Tea8Y+wMx5A24rq8A8NepCeatIQufVAekKNgiBMsGQ==}
+
   mdurl@2.0.0:
     resolution: {integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==}
 
@@ -2862,6 +2870,12 @@ packages:
     peerDependencies:
       postcss: ^8.0.0
 
+  postcss-import@16.1.1:
+    resolution: {integrity: sha512-2xVS1NCZAfjtVdvXiyegxzJ447GyqCeEI5V7ApgQVOWnros1p5lGNovJNapwPpMombyFBfqDwt7AD3n2l0KOfQ==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      postcss: ^8.0.0
+
   postcss-js@4.0.1:
     resolution: {integrity: sha512-dDLF8pEO191hJMtlHFPRa8xsizHaM82MLfNkUHdUtVEV3tgTp5oj+8qbEqYM57SLfc74KSbw//4SeJma2LRVIw==}
     engines: {node: ^12 || ^14 || >= 16}
@@ -2895,6 +2909,10 @@ packages:
 
   postcss@8.5.4:
     resolution: {integrity: sha512-QSa9EBe+uwlGTFmHsPKokv3B/oEMQZxfqW0QqNCyhpa6mB1afzulwn8hihglqAb2pOw+BJgNlmXQ8la2VeHB7w==}
+    engines: {node: ^10 || ^12 || >=14}
+
+  postcss@8.5.6:
+    resolution: {integrity: sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==}
     engines: {node: ^10 || ^12 || >=14}
 
   prelude-ls@1.2.1:
@@ -3311,6 +3329,10 @@ packages:
   synckit@0.11.8:
     resolution: {integrity: sha512-+XZ+r1XGIJGeQk3VvXhT6xx/VpbHsRzsTkGgF6E5RX9TTXD0118l87puaEBZ566FhqblC6U0d4XnubznJDm30A==}
     engines: {node: ^14.18.0 || >=16.0.0}
+
+  tailwind-csstree@0.1.1:
+    resolution: {integrity: sha512-Tv5IXRHtlb7LanNXjmGg0vu84Iu+/sKDqTLJBO0kP/rggfjJDKnS/HV+e0qn8yIrRByhGg+908rSOxT/7o1diw==}
+    engines: {node: '>=18.18'}
 
   tailwindcss@3.4.17:
     resolution: {integrity: sha512-w33E2aCvSDP0tW9RZuNXadXlkHXqFzSkQew/aIa2i/Sj8fThxwovwlXHSPXTbAHwEIhBFXAedUhP2tueAKP8Og==}
@@ -3854,6 +3876,11 @@ snapshots:
   '@eslint/core@0.14.0':
     dependencies:
       '@types/json-schema': 7.0.15
+
+  '@eslint/css-tree@3.6.1':
+    dependencies:
+      mdn-data: 2.21.0
+      source-map-js: 1.2.1
 
   '@eslint/eslintrc@3.3.1':
     dependencies:
@@ -5177,6 +5204,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  eslint-plugin-better-tailwindcss@3.2.1(eslint@9.29.0(jiti@2.4.2))(tailwindcss@3.4.17):
+    dependencies:
+      '@eslint/css-tree': 3.6.1
+      enhanced-resolve: 5.18.1
+      eslint: 9.29.0(jiti@2.4.2)
+      jiti: 2.4.2
+      postcss: 8.5.6
+      postcss-import: 16.1.1(postcss@8.5.6)
+      synckit: 0.11.8
+      tailwind-csstree: 0.1.1
+      tailwindcss: 3.4.17
+
   eslint-plugin-es-x@7.8.0(eslint@9.29.0(jiti@2.4.2)):
     dependencies:
       '@eslint-community/eslint-utils': 4.7.0(eslint@9.29.0(jiti@2.4.2))
@@ -5381,12 +5420,6 @@ snapshots:
   eslint-plugin-sonarjs@0.23.0(eslint@9.29.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.29.0(jiti@2.4.2)
-
-  eslint-plugin-tailwindcss@3.18.0(tailwindcss@3.4.17):
-    dependencies:
-      fast-glob: 3.3.3
-      postcss: 8.5.4
-      tailwindcss: 3.4.17
 
   eslint-plugin-testing-library@6.5.0(eslint@9.29.0(jiti@2.4.2))(typescript@5.8.3):
     dependencies:
@@ -6346,6 +6379,8 @@ snapshots:
     dependencies:
       '@types/mdast': 4.0.4
 
+  mdn-data@2.21.0: {}
+
   mdurl@2.0.0: {}
 
   meow@8.1.2:
@@ -6978,6 +7013,13 @@ snapshots:
       read-cache: 1.0.0
       resolve: 1.22.10
 
+  postcss-import@16.1.1(postcss@8.5.6):
+    dependencies:
+      postcss: 8.5.6
+      postcss-value-parser: 4.2.0
+      read-cache: 1.0.0
+      resolve: 1.22.10
+
   postcss-js@4.0.1(postcss@8.5.4):
     dependencies:
       camelcase-css: 2.0.1
@@ -7003,6 +7045,12 @@ snapshots:
   postcss-value-parser@4.2.0: {}
 
   postcss@8.5.4:
+    dependencies:
+      nanoid: 3.3.11
+      picocolors: 1.1.1
+      source-map-js: 1.2.1
+
+  postcss@8.5.6:
     dependencies:
       nanoid: 3.3.11
       picocolors: 1.1.1
@@ -7515,6 +7563,8 @@ snapshots:
   synckit@0.11.8:
     dependencies:
       '@pkgr/core': 0.2.7
+
+  tailwind-csstree@0.1.1: {}
 
   tailwindcss@3.4.17:
     dependencies:

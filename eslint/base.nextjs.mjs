@@ -3,7 +3,7 @@ import nextPlugin from '@next/eslint-plugin-next';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import tailwindcssPlugin from 'eslint-plugin-tailwindcss';
+import tailwindcssPlugin from ' eslint-plugin-better-tailwindcss';
 import process from 'node:process';
 
 import {
@@ -28,7 +28,11 @@ import {
  * ESLint configuration for Next.js frontend applications.
  * Includes React, Next.js, and accessibility rules.
  */
-export function createBaseConfig({ tsconfigDir = process.cwd() } = {}) {
+export function createBaseConfig({
+  tsconfigDir = process.cwd(),
+  cssFilePath = 'src/global.css',
+  tailwindConfig = 'tailwind.config.ts',
+} = {}) {
   return typescriptEslint.config(
     // Ignore patterns
     {
@@ -174,21 +178,12 @@ export function createBaseConfig({ tsconfigDir = process.cwd() } = {}) {
       name: 'plyaz/tailwind',
       files: ['**/*.{jsx,tsx}'],
       plugins: {
-        tailwindcss: tailwindcssPlugin,
-      },
-      rules: {
-        'tailwindcss/classnames-order': 'error',
-        'tailwindcss/enforces-negative-arbitrary-values': 'error',
-        'tailwindcss/enforces-shorthand': 'error',
-        'tailwindcss/migration-from-tailwind-2': 'error',
-        'tailwindcss/no-arbitrary-value': 'off', // Allow arbitrary values for custom designs
-        'tailwindcss/no-contradicting-classname': 'error',
-        'tailwindcss/no-custom-classname': 'off', // Allow custom classes
+        'better-tailwindcss': tailwindcssPlugin,
       },
       settings: {
-        tailwindcss: {
-          callees: ['cn', 'clsx', 'cva'],
-          config: './tailwind.config.js',
+        'better-tailwindcss': {
+          entryPoint: cssFilePath,
+          tailwindConfig: tailwindConfig,
         },
       },
     },
