@@ -1,9 +1,10 @@
+import js from '@eslint/js';
 import typescriptEslint from 'typescript-eslint';
-import nextPlugin from '@next/eslint-plugin-next';
+import { FlatCompat } from '@eslint/eslintrc';
 import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
-import tailwindcssPlugin from ' eslint-plugin-better-tailwindcss';
+import tailwindcssPlugin from 'eslint-plugin-better-tailwindcss';
 import process from 'node:process';
 
 import {
@@ -25,50 +26,42 @@ import {
 } from './config/index.mjs';
 
 /**
- * ESLint configuration for Next.js frontend applications.
- * Includes React, Next.js, and accessibility rules.
+ * ESLint configuration for Next.js frontend applications using FlatCompat.
+ * This approach ensures Next.js properly detects the plugin.
  */
 export function createBaseConfig({
   tsconfigDir = process.cwd(),
   cssFilePath = 'src/global.css',
   tailwindConfig = 'tailwind.config.ts',
+  baseDirectory = process.cwd(),
+  rootDir = '.',
 } = {}) {
+  // Initialize FlatCompat for Next.js config
+  const compat = new FlatCompat({
+    baseDirectory,
+    recommendedConfig: js.configs.recommended,
+    allConfig: {},
+  });
+
   return typescriptEslint.config(
     // Ignore patterns
     {
       name: 'plyaz/frontend',
-      ignores: [
-        ...COMMON_IGNORE_PATTERNS,
-        '**/.next/**',
-        '**/public/**',
-        '**/.vercel/**',
-        '**/storybook-static/**',
-        '**/next.config.js',
-        '**/tailwind.config.js',
-        '**/postcss.config.js',
-      ],
+      ignores: COMMON_IGNORE_PATTERNS,
     },
 
     // Base configurations
     ...createBaseConfigs(),
 
-    // Next.js configuration
-    {
-      name: 'plyaz/next',
-      files: ['**/*.{js,jsx,ts,tsx}'],
-      plugins: {
-        '@next/next': nextPlugin,
-      },
-      rules: {
-        ...nextPlugin.configs.recommended.rules,
-        ...nextPlugin.configs['core-web-vitals'].rules,
-      },
+    // Next.js configuration using FlatCompat (RECOMMENDED APPROACH)
+    ...compat.config({
+      extends: ['next/core-web-vitals', 'next'],
       settings: {
         next: {
-          rootDir: '.',
+          rootDir,
         },
       },
-    },
+    }),
 
     // React configuration
     {
@@ -244,6 +237,14 @@ export function createBaseConfig({
             allowObject: false,
           },
         ],
+        '@typescript-eslint/naming-convention': [
+          'error',
+          // Functions - camelCase (getUserData, validateInput)
+          {
+            selector: 'function',
+            format: ['camelCase', 'PascalCase'],
+          },
+        ],
       },
     },
 
@@ -268,19 +269,19 @@ export function createBaseConfig({
       },
     },
 
-    // CSS naming enforcement
+    // CSS class naming enforcement in JS/TS files (not CSS files themselves)
     {
-      name: 'plyaz/css-naming',
-      files: ['**/*.{css,less,scss}'],
+      name: 'plyaz/css-class-naming',
+      files: ['**/*.{js,jsx,ts,tsx}'], // Only apply to JS/TS files
       rules: {
         'no-restricted-syntax': [
           'error',
-          // Enforce CSS class naming
+          // Enforce CSS class naming in className props
           {
-            selector: 'Literal[value=/className.*[A-Z]/]',
+            selector: 'JSXAttribute[name.name="className"] Literal[value=/[A-Z]/]',
             message: 'CSS classnames should use kebab-case (button-primary ✓, buttonPrimary ✗)',
           },
-          // Enforce variant keys are singular
+          // Enforce variant keys are singular in component props
           {
             selector: 'Property[key.name="variants"] Property[key.name=/s$/]',
             message:

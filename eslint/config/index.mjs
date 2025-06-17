@@ -1250,6 +1250,31 @@ export const COMMON_IGNORE_PATTERNS = [
   '**/.turbo/**',
   '**/*.generated.{js,ts,tsx}',
   '**/generated/**',
+  // CSS and style files should not be parsed by ESLint
+  '**/*.css',
+  '**/*.scss',
+  '**/*.sass',
+  '**/*.less',
+  '**/*.styl',
+  // Other assets
+  '**/*.png',
+  '**/*.jpg',
+  '**/*.jpeg',
+  '**/*.gif',
+  '**/*.svg',
+  '**/*.ico',
+  '**/*.woff',
+  '**/*.woff2',
+  '**/*.ttf',
+  '**/*.eot',
+  // nEXT
+  '**/.next/**',
+  '**/public/**',
+  '**/.vercel/**',
+  '**/storybook-static/**',
+  '**/next.config.js',
+  '**/tailwind.config.js',
+  '**/postcss.config.js',
 ];
 
 /**
