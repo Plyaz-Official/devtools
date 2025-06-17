@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.2.6 (2025-06-17)
+
+
+### Bug Fixes
+
+* Fix formatting ([889156f](https://github.com/Plyaz-Official/devtools/commit/889156f5f561b23158b1fd0216afb0ebd5084bbf))
+
 ### 1.2.5 (2025-06-17)
 
 ### 1.2.4 (2025-06-17)
