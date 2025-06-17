@@ -19,7 +19,6 @@ import {
   createUnicornConfig,
   createBestPracticesConfig,
   createNamingConventionsConfig,
-  createJSONConfig,
   createFileNamingConfig,
   createCommonOverrides,
   COMMON_IGNORE_PATTERNS,
@@ -215,7 +214,6 @@ export function createBaseConfig({ tsconfigDir = process.cwd() } = {}) {
       complexityMax: 10,
     }),
     createNamingConventionsConfig(),
-    createJSONConfig(),
     createFileNamingConfig(),
 
     // Frontend-specific overrides

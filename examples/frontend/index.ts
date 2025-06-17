@@ -12,7 +12,7 @@ interface AthleteProfile {
  * Calculates athlete token portfolio value.
  * @param athletes - Array of athlete profiles.
  * @param userTokens - User's token holdings.
- * @returns Total portfolio value in USD.
+ * @returns {number} Total portfolio value in USD.
  * @example `calculatePortfolioValue([{ id: 'athlete1', name: 'Athlete 1', tokenPrice: 10 }], { tokenCount: 10 }]) => 100`
  */
 export function calculatePortfolioValue(
