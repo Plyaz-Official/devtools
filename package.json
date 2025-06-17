@@ -56,6 +56,7 @@
     "jiti": "^2.4.2",
     "markdownlint": "^0.38.0",
     "prettier": "^3.5.3",
+    "next": "15.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "standard-version": "^9.5.0",

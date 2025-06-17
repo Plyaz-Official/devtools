@@ -630,7 +630,14 @@ export const COMMON_FILENAME_IGNORE_PATTERNS = [
   // Next.js specific files
   'next.config.js',
   'tailwind.config.js',
+  'vitest.config.js',
+  'vitest.setup.js',
   'postcss.config.js',
+  'next.config.ts',
+  'tailwind.config.ts',
+  'vitest.config.ts',
+  'vitest.setup.ts',
+  'postcss.config.ts',
   // NestJS specific patterns
   '\\.module\\.ts$',
   '\\.controller\\.ts$',
@@ -1267,7 +1274,7 @@ export const COMMON_IGNORE_PATTERNS = [
   '**/*.woff2',
   '**/*.ttf',
   '**/*.eot',
-  // nEXT
+  // NEXT
   '**/.next/**',
   '**/public/**',
   '**/.vercel/**',
