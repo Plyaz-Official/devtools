@@ -1,11 +1,13 @@
-import { type Options } from 'tsup';
+import { defineConfig, type Options } from 'tsup';
 
 /**
  * Base tsup configuration for all @plyaz packages
  * Provides sensible defaults for dual CJS/ESM output with TypeScript support
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createTsupConfig = (options: Partial<Options> = {}): Options => {
-  return {
+export const createTsupConfig = (options = {}) => {
+  return defineConfig({
     // Entry points - packages should override if needed
     entry: ['src/index.ts'],
 
@@ -25,7 +27,7 @@ export const createTsupConfig = (options: Partial<Options> = {}): Options => {
     outDir: 'dist',
 
     // Target modern environments but maintain compatibility
-    target: ['es2022', 'node18'],
+    target: ['es2022', 'node22'],
 
     // Platform neutral by default (works in browser and Node.js)
     platform: 'neutral',
@@ -124,14 +126,16 @@ export const createTsupConfig = (options: Partial<Options> = {}): Options => {
 
     // Merge with user options (user options take precedence)
     ...options,
-  };
+  });
 };
 
 /**
  * Configuration for React/Next.js component packages
  * Optimized for browser environments with JSX support
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createReactConfig = (options: Partial<Options> = {}): Options => {
+export const createReactConfig = (options: Partial<Options> = {}) => {
   return createTsupConfig({
     platform: 'browser',
     target: ['es2022'],
@@ -162,9 +166,9 @@ export const createReactConfig = (options: Partial<Options> = {}): Options => {
       'framer-motion',
 
       // Include any additional externals
-      ...((options.external as string[]) || []),
+      ...(options.external || []),
     ],
-    esbuildOptions(opts, context) {
+    esbuildOptions(opts: { jsx: string; jsxImportSource: string; charset: string; packages: string; platform: string; }, context: { format: string; }) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
@@ -185,11 +189,13 @@ export const createReactConfig = (options: Partial<Options> = {}): Options => {
 /**
  * Configuration for Node.js/NestJS backend packages
  * Optimized for server environments
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createNodeConfig = (options: Partial<Options> = {}): Options => {
+export const createNodeConfig = (options: Options = {}) => {
   return createTsupConfig({
     platform: 'node',
-    target: ['node18'],
+    target: ['node22'],
     external: [
       // Node.js built-ins
       'fs',
@@ -224,9 +230,9 @@ export const createNodeConfig = (options: Partial<Options> = {}): Options => {
       'jsonwebtoken',
 
       // Include any additional externals
-      ...((options.external as string[]) || []),
+      ...(options.external || []),
     ],
-    esbuildOptions(opts, context) {
+    esbuildOptions(opts: { charset: string; platform: string; packages: string; }, context: { format: string; }) {
       opts.charset = 'utf8';
       opts.platform = 'node';
 
@@ -241,11 +247,13 @@ export const createNodeConfig = (options: Partial<Options> = {}): Options => {
 /**
  * Configuration for full-stack packages (work in both browser and Node.js)
  * Perfect for shared utilities, types, and isomorphic code
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createIsomorphicConfig = (options: Partial<Options> = {}): Options => {
+export const createIsomorphicConfig = (options: Partial<Options> = {}) => {
   return createTsupConfig({
     platform: 'neutral',
-    target: ['es2022', 'node18'],
+    target: ['es2022', 'node22'],
     external: [
       // React ecosystem (optional peer deps)
       'react',
@@ -285,9 +293,9 @@ export const createIsomorphicConfig = (options: Partial<Options> = {}): Options 
       'wagmi',
 
       // Include any additional externals
-      ...((options.external as string[]) || []),
+      ...(options.external || []),
     ],
-    esbuildOptions(opts, context) {
+    esbuildOptions(opts: { jsx: string; jsxImportSource: string; charset: string; packages: string; platform: string; }, context: { format: string; }) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
@@ -308,12 +316,14 @@ export const createIsomorphicConfig = (options: Partial<Options> = {}): Options 
 /**
  * Configuration for utility packages
  * Optimized for tree-shaking and minimal bundle size
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createUtilsConfig = (options: Partial<Options> = {}): Options => {
+export const createUtilsConfig = (options: Partial<Options> = {}) => {
   return createTsupConfig({
     treeshake: 'smallest',
     platform: 'neutral',
-    target: ['es2022', 'node18'],
+    target: ['es2022', 'node22'],
     external: [
       // Keep only essential externals for utils
       'date-fns',
@@ -322,7 +332,7 @@ export const createUtilsConfig = (options: Partial<Options> = {}): Options => {
       'crypto',
 
       // Include any additional externals
-      ...((options.external as string[]) || []),
+      ...(options.external || []),
     ],
     ...options,
   });
@@ -331,8 +341,10 @@ export const createUtilsConfig = (options: Partial<Options> = {}): Options => {
 /**
  * Configuration for type-only packages
  * No runtime code, just TypeScript definitions
+ * @param {import('tsup').Options} options
+ * @returns {import('tsup').Options}
  */
-export const createTypesConfig = (options: Partial<Options> = {}): Options => {
+export const createTypesConfig = (options = {}) => {
   return createTsupConfig({
     dts: {
       only: true, // Only generate .d.ts files
