@@ -7,9 +7,19 @@ const __dirname = dirname(__filename);
 
 export default defineConfig({
   test: {
+    // Environment
     environment: 'jsdom',
     globals: true,
+
+    // Environment variables
+    env: {
+      NODE_ENV: 'test',
+    },
+
+    // Setup
     setupFiles: ['./vitest.setup.ts'],
+
+    // Test file patterns
     include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
 
     coverage: {
@@ -43,6 +53,7 @@ export default defineConfig({
 
     // Test behavior
     restoreMocks: true,
+    clearMocks: true,
     testTimeout: 10_000,
     hookTimeout: 10_000,
 
@@ -53,8 +64,18 @@ export default defineConfig({
     watch: {
       include: ['src/**/*', 'tests/**/*'],
     },
+
+    // Pool options for better performance
+    pool: 'threads',
+    poolOptions: {
+      threads: {
+        singleThread: false,
+        isolate: true,
+      },
+    },
   },
 
+  // Module resolution
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
@@ -64,6 +85,11 @@ export default defineConfig({
 
   // Define global variables for tests
   define: {
-    'import.meta.vitest': undefined,
+    'import.meta.vitest': 'undefined',
+  },
+
+  // ESBuild options
+  esbuild: {
+    target: 'node22',
   },
 });
