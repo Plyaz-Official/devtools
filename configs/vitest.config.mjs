@@ -1,5 +1,9 @@
-/* eslint-disable @typescript-eslint/naming-convention */
 import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default defineConfig({
   test: {
@@ -17,5 +21,11 @@ export default defineConfig({
 
     restoreMocks: true,
     testTimeout: 10_000,
+  },
+
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
   },
 });
