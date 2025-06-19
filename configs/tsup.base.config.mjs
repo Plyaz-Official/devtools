@@ -1,4 +1,4 @@
-import { defineConfig, type Options } from 'tsup';
+import { defineConfig } from 'tsup';
 
 /**
  * Base tsup configuration for all @plyaz packages
@@ -135,7 +135,7 @@ export const createTsupConfig = (options = {}) => {
  * @param {import('tsup').Options} options
  * @returns {import('tsup').Options}
  */
-export const createReactConfig = (options: Partial<Options> = {}) => {
+export const createReactConfig = (options = {}) => {
   return createTsupConfig({
     platform: 'browser',
     target: ['es2022'],
@@ -168,16 +168,7 @@ export const createReactConfig = (options: Partial<Options> = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(
-      opts: {
-        jsx: string;
-        jsxImportSource: string;
-        charset: string;
-        packages: string;
-        platform: string;
-      },
-      context: { format: string }
-    ) {
+    esbuildOptions(opts, context) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
@@ -201,7 +192,7 @@ export const createReactConfig = (options: Partial<Options> = {}) => {
  * @param {import('tsup').Options} options
  * @returns {import('tsup').Options}
  */
-export const createNodeConfig = (options: Options = {}) => {
+export const createNodeConfig = options => {
   return createTsupConfig({
     platform: 'node',
     target: ['node22'],
@@ -241,10 +232,7 @@ export const createNodeConfig = (options: Options = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(
-      opts: { charset: string; platform: string; packages: string },
-      context: { format: string }
-    ) {
+    esbuildOptions(opts, context) {
       opts.charset = 'utf8';
       opts.platform = 'node';
 
@@ -262,7 +250,7 @@ export const createNodeConfig = (options: Options = {}) => {
  * @param {import('tsup').Options} options
  * @returns {import('tsup').Options}
  */
-export const createIsomorphicConfig = (options: Partial<Options> = {}) => {
+export const createIsomorphicConfig = options => {
   return createTsupConfig({
     platform: 'neutral',
     target: ['es2022', 'node22'],
@@ -307,16 +295,7 @@ export const createIsomorphicConfig = (options: Partial<Options> = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(
-      opts: {
-        jsx: string;
-        jsxImportSource: string;
-        charset: string;
-        packages: string;
-        platform: string;
-      },
-      context: { format: string }
-    ) {
+    esbuildOptions(opts, context) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
@@ -340,7 +319,7 @@ export const createIsomorphicConfig = (options: Partial<Options> = {}) => {
  * @param {import('tsup').Options} options
  * @returns {import('tsup').Options}
  */
-export const createUtilsConfig = (options: Partial<Options> = {}) => {
+export const createUtilsConfig = (options = {}) => {
   return createTsupConfig({
     treeshake: 'smallest',
     platform: 'neutral',
