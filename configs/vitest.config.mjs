@@ -57,9 +57,6 @@ export default defineConfig({
     testTimeout: 10_000,
     hookTimeout: 10_000,
 
-    // Reporters
-    reporters: ['default', 'verbose'],
-
     // Watch options
     watch: {
       include: ['src/**/*', 'tests/**/*'],
