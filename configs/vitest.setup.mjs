@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-useless-constructor */
 /* eslint-disable no-undef */
 import { beforeAll, afterEach, afterAll, vi } from 'vitest';
-import { cleanup } from '@testing-library/react';
 import process from 'process';
 
 // Mock environment variables
@@ -47,7 +46,6 @@ beforeAll(() => {
 
 // Cleanup after each test
 afterEach(() => {
-  cleanup();
   vi.clearAllMocks();
 });
 
