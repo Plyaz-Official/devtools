@@ -53,7 +53,7 @@ export function createBaseConfig({ tsconfigDir = process.cwd() } = {}) {
     }),
     createWeb3Config(), // Important for Web3 utility packages
     createJSDocConfig(),
-    createImportConfig({ tsconfigDir }),
+    createImportConfig({ tsconfigDir, backend: true }),
     createUnicornConfig(),
     createBestPracticesConfig({
       complexityMax: 8, // Lower for shared utilities

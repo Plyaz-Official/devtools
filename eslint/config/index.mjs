@@ -846,7 +846,7 @@ export function createImportConfig({ tsconfigDir = process.cwd(), backend = fals
       'import/no-self-import': 'error',
       'import/no-useless-path-segments': 'error',
       'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
-      'import/no-duplicates': ['error', { 'prefer-inline': true }],
+      'import/no-duplicates': ['error', { 'considerQueryString': true }],
       'import/first': 'error',
       'import/newline-after-import': 'error',
       'import/no-default-export': backend ? 'error' : 'off',
@@ -1053,7 +1053,7 @@ export function createBestPracticesConfig(options = {}) {
       ],
 
       // Additional rules for reliability
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
       'no-unreachable': 'error',
       'no-unreachable-loop': 'error',
       'require-atomic-updates': 'error',
@@ -1070,6 +1070,7 @@ export function createNamingConventionsConfig() {
   return {
     name: 'plyaz/shared-naming-conventions',
     files: ['**/*.{jsx,tsx,ts,js}'],
+    ignore: [...COMMON_IGNORE_PATTERNS, ...COMMON_FILENAME_IGNORE_PATTERNS],
     rules: {
       '@typescript-eslint/naming-convention': [
         'error',
@@ -1279,9 +1280,15 @@ export const COMMON_IGNORE_PATTERNS = [
   '**/public/**',
   '**/.vercel/**',
   '**/storybook-static/**',
-  '**/next.config.js',
-  '**/tailwind.config.js',
-  '**/postcss.config.js',
+  '**/next.config.*',
+  '**/tailwind.config.*',
+  '**/postcss.config.*',
+  '**/eslint.*.*',
+  '**/.prettierrc.*.*',
+  '**/vtest.config.*',
+  '**/vtest.setup.*',
+  '**/*.sh',
+  '**/tsup.config.*',
 ];
 
 /**
@@ -1957,7 +1964,7 @@ export function createPerformanceConfig() {
       ],
 
       // Reduce bundle size
-      'no-duplicate-imports': 'error',
+      'no-duplicate-imports': 'off',
       'no-useless-constructor': 'error',
       'no-useless-computed-key': 'error',
       'no-useless-rename': 'error',
