@@ -168,7 +168,16 @@ export const createReactConfig = (options: Partial<Options> = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(opts: { jsx: string; jsxImportSource: string; charset: string; packages: string; platform: string; }, context: { format: string; }) {
+    esbuildOptions(
+      opts: {
+        jsx: string;
+        jsxImportSource: string;
+        charset: string;
+        packages: string;
+        platform: string;
+      },
+      context: { format: string }
+    ) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
@@ -232,7 +241,10 @@ export const createNodeConfig = (options: Options = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(opts: { charset: string; platform: string; packages: string; }, context: { format: string; }) {
+    esbuildOptions(
+      opts: { charset: string; platform: string; packages: string },
+      context: { format: string }
+    ) {
       opts.charset = 'utf8';
       opts.platform = 'node';
 
@@ -295,7 +307,16 @@ export const createIsomorphicConfig = (options: Partial<Options> = {}) => {
       // Include any additional externals
       ...(options.external || []),
     ],
-    esbuildOptions(opts: { jsx: string; jsxImportSource: string; charset: string; packages: string; platform: string; }, context: { format: string; }) {
+    esbuildOptions(
+      opts: {
+        jsx: string;
+        jsxImportSource: string;
+        charset: string;
+        packages: string;
+        platform: string;
+      },
+      context: { format: string }
+    ) {
       opts.jsx = 'automatic';
       opts.jsxImportSource = 'react';
       opts.charset = 'utf8';
