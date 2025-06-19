@@ -1,119 +1,347 @@
-import type { Options } from 'tsup';
-import { defineConfig } from 'tsup';
+import { type Options } from 'tsup';
 
-export const createTsupConfig = (options: Partial<Options> = {}) => {
-  return defineConfig({
-    // Entry points
+/**
+ * Base tsup configuration for all @plyaz packages
+ * Provides sensible defaults for dual CJS/ESM output with TypeScript support
+ */
+export const createTsupConfig = (options: Partial<Options> = {}): Options => {
+  return {
+    // Entry points - packages should override if needed
     entry: ['src/index.ts'],
 
-    // Output formats
+    // Dual format output for maximum compatibility
     format: ['cjs', 'esm'],
 
-    // Generate type definitions
+    // Generate TypeScript declaration files
     dts: true,
-
-    // Code splitting for better tree shaking
-    splitting: true,
 
     // Source maps for debugging
     sourcemap: true,
 
-    // Clean output directory
+    // Clean output directory before build
     clean: true,
 
     // Output directory
     outDir: 'dist',
 
-    // Target environments
-    target: 'node18',
+    // Target modern environments but maintain compatibility
+    target: ['es2022', 'node18'],
 
-    // Bundle external dependencies or keep them external
+    // Platform neutral by default (works in browser and Node.js)
+    platform: 'neutral',
+
+    // Don't bundle external dependencies - keep them as peer deps
     external: [
-      // Keep peer dependencies external
+      // React ecosystem
       'react',
       'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+
+      // Next.js framework
       'next',
+      'next/app',
+      'next/document',
+      'next/head',
+      'next/image',
+      'next/link',
+      'next/router',
+      'next/navigation',
+      'next/headers',
+      'next/server',
+      'next/dynamic',
+
+      // NestJS ecosystem
       '@nestjs/common',
       '@nestjs/core',
-      // Add other common peer deps
+      '@nestjs/platform-express',
+      '@nestjs/platform-fastify',
+      '@nestjs/swagger',
+      '@nestjs/config',
+      '@nestjs/typeorm',
+
+      // Node.js built-ins
+      'fs',
+      'path',
+      'crypto',
+      'os',
+      'util',
+      'stream',
+      'events',
+      'http',
+      'https',
+      'url',
+      'querystring',
+
+      // Common ecosystem packages
+      'ethers',
+      'viem',
+      'wagmi',
+      'zustand',
+      '@tanstack/react-query',
+      'axios',
+      'lodash',
+      'date-fns',
+      'zod',
     ],
 
-    // Minification
-    minify: false, // Keep readable for debugging, enable in production
+    // Code splitting disabled for libraries (better for consumers)
+    splitting: false,
 
-    // Tree shaking
+    // Don't minify - let consumers decide
+    minify: false,
+
+    // Enable tree shaking
     treeshake: true,
 
-    // Bundle splitting strategy
-    experimentalDts: {
-      entry: {
-        index: 'src/index.ts',
-      },
-    },
-
-    // Platform specific builds
-    platform: 'node',
-
-    // Keep original file names for better debugging
+    // Keep original names for better debugging
     keepNames: true,
 
-    // Banner for licensing
+    // Add banner to generated files
     banner: {
       js: '// @plyaz package - Built with tsup',
     },
 
-    // Custom esbuild options
-    esbuildOptions(options, context) {
-      // Add any custom esbuild configurations
-      options.charset = 'utf8';
+    // esbuild configuration
+    esbuildOptions(opts, context) {
+      // UTF-8 encoding
+      opts.charset = 'utf8';
 
-      // Conditional builds based on format
+      // JSX configuration for React/Next.js support
+      opts.jsx = 'automatic';
+      opts.jsxImportSource = 'react';
+
+      // Format-specific optimizations
       if (context.format === 'esm') {
-        options.packages = 'external';
+        opts.packages = 'external';
+        opts.platform = 'neutral';
+      }
+
+      if (context.format === 'cjs') {
+        opts.platform = 'node'; // CJS requires Node.js platform
       }
     },
 
-    // Plugin system
-    esbuildPlugins: [],
+    // Merge with user options (user options take precedence)
+    ...options,
+  };
+};
 
-    // Override any default options with user provided ones
+/**
+ * Configuration for React/Next.js component packages
+ * Optimized for browser environments with JSX support
+ */
+export const createReactConfig = (options: Partial<Options> = {}): Options => {
+  return createTsupConfig({
+    platform: 'browser',
+    target: ['es2022'],
+    external: [
+      // React core
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+
+      // Next.js modules
+      'next',
+      'next/app',
+      'next/document',
+      'next/head',
+      'next/image',
+      'next/link',
+      'next/router',
+      'next/navigation',
+      'next/headers',
+      'next/server',
+      'next/dynamic',
+
+      // Common React ecosystem
+      '@tanstack/react-query',
+      'zustand',
+      'react-hook-form',
+      'framer-motion',
+
+      // Include any additional externals
+      ...((options.external as string[]) || []),
+    ],
+    esbuildOptions(opts, context) {
+      opts.jsx = 'automatic';
+      opts.jsxImportSource = 'react';
+      opts.charset = 'utf8';
+
+      if (context.format === 'esm') {
+        opts.packages = 'external';
+        opts.platform = 'browser';
+      }
+
+      if (context.format === 'cjs') {
+        opts.platform = 'node';
+      }
+    },
     ...options,
   });
 };
 
-// Specific configurations for different package types
-export const createLibraryConfig = (options: Partial<Options> = {}) => {
+/**
+ * Configuration for Node.js/NestJS backend packages
+ * Optimized for server environments
+ */
+export const createNodeConfig = (options: Partial<Options> = {}): Options => {
   return createTsupConfig({
-    // Library specific defaults
-    splitting: false, // Libraries usually don't need splitting
-    ...options,
-  });
-};
-
-export const createUtilsConfig = (options: Partial<Options> = {}) => {
-  return createTsupConfig({
-    // Utils can be tree-shaken more aggressively
-    treeshake: 'smallest',
-    ...options,
-  });
-};
-
-export const createReactConfig = (options: Partial<Options> = {}) => {
-  return createTsupConfig({
-    // React component specific config
-    external: ['react', 'react-dom', ...((options.external as readonly string[]) || [])],
-    ...options,
-  });
-};
-
-export const createNodeConfig = (options: Partial<Options> = {}) => {
-  return createTsupConfig({
-    // Node.js specific config
     platform: 'node',
-    target: 'node18',
-    format: ['cjs', 'esm'],
+    target: ['node18'],
+    external: [
+      // Node.js built-ins
+      'fs',
+      'path',
+      'crypto',
+      'os',
+      'util',
+      'stream',
+      'events',
+      'http',
+      'https',
+      'url',
+      'querystring',
+      'buffer',
+      'child_process',
+
+      // NestJS ecosystem
+      '@nestjs/common',
+      '@nestjs/core',
+      '@nestjs/platform-express',
+      '@nestjs/platform-fastify',
+      '@nestjs/swagger',
+      '@nestjs/config',
+      '@nestjs/typeorm',
+
+      // Common backend packages
+      'express',
+      'fastify',
+      'cors',
+      'helmet',
+      'bcrypt',
+      'jsonwebtoken',
+
+      // Include any additional externals
+      ...((options.external as string[]) || []),
+    ],
+    esbuildOptions(opts, context) {
+      opts.charset = 'utf8';
+      opts.platform = 'node';
+
+      if (context.format === 'esm') {
+        opts.packages = 'external';
+      }
+    },
     ...options,
   });
 };
 
+/**
+ * Configuration for full-stack packages (work in both browser and Node.js)
+ * Perfect for shared utilities, types, and isomorphic code
+ */
+export const createIsomorphicConfig = (options: Partial<Options> = {}): Options => {
+  return createTsupConfig({
+    platform: 'neutral',
+    target: ['es2022', 'node18'],
+    external: [
+      // React ecosystem (optional peer deps)
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+
+      // Next.js (optional peer deps)
+      'next',
+      'next/app',
+      'next/document',
+      'next/head',
+      'next/image',
+      'next/link',
+      'next/router',
+      'next/navigation',
+      'next/headers',
+      'next/server',
+
+      // Node.js built-ins (optional)
+      'fs',
+      'path',
+      'crypto',
+      'os',
+      'util',
+      'stream',
+      'events',
+
+      // NestJS (optional peer deps)
+      '@nestjs/common',
+      '@nestjs/core',
+      '@nestjs/platform-express',
+
+      // Web3 ecosystem
+      'ethers',
+      'viem',
+      'wagmi',
+
+      // Include any additional externals
+      ...((options.external as string[]) || []),
+    ],
+    esbuildOptions(opts, context) {
+      opts.jsx = 'automatic';
+      opts.jsxImportSource = 'react';
+      opts.charset = 'utf8';
+
+      if (context.format === 'esm') {
+        opts.packages = 'external';
+        opts.platform = 'neutral';
+      }
+
+      if (context.format === 'cjs') {
+        opts.platform = 'node';
+      }
+    },
+    ...options,
+  });
+};
+
+/**
+ * Configuration for utility packages
+ * Optimized for tree-shaking and minimal bundle size
+ */
+export const createUtilsConfig = (options: Partial<Options> = {}): Options => {
+  return createTsupConfig({
+    treeshake: 'smallest',
+    platform: 'neutral',
+    target: ['es2022', 'node18'],
+    external: [
+      // Keep only essential externals for utils
+      'date-fns',
+      'lodash',
+      'zod',
+      'crypto',
+
+      // Include any additional externals
+      ...((options.external as string[]) || []),
+    ],
+    ...options,
+  });
+};
+
+/**
+ * Configuration for type-only packages
+ * No runtime code, just TypeScript definitions
+ */
+export const createTypesConfig = (options: Partial<Options> = {}): Options => {
+  return createTsupConfig({
+    dts: {
+      only: true, // Only generate .d.ts files
+    },
+    format: ['esm'], // Types don't need dual format
+    external: [], // Types don't have runtime dependencies
+    ...options,
+  });
+};
+
+// Export the base config as default
 export default createTsupConfig;
