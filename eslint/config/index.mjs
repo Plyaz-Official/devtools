@@ -846,7 +846,7 @@ export function createImportConfig({ tsconfigDir = process.cwd(), backend = fals
       'import/no-self-import': 'error',
       'import/no-useless-path-segments': 'error',
       'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
-      'import/no-duplicates': ['error', { 'considerQueryString': true }],
+      'import/no-duplicates': ['error', { considerQueryString: true }],
       'import/first': 'error',
       'import/newline-after-import': 'error',
       'import/no-default-export': backend ? 'error' : 'off',
@@ -1070,7 +1070,7 @@ export function createNamingConventionsConfig() {
   return {
     name: 'plyaz/shared-naming-conventions',
     files: ['**/*.{jsx,tsx,ts,js}'],
-    ignore: [...COMMON_IGNORE_PATTERNS, ...COMMON_FILENAME_IGNORE_PATTERNS],
+    ignores: [...COMMON_IGNORE_PATTERNS, ...COMMON_FILENAME_IGNORE_PATTERNS],
     rules: {
       '@typescript-eslint/naming-convention': [
         'error',

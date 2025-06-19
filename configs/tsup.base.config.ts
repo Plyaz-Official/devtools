@@ -1,6 +1,5 @@
-import type {Options} from 'tsup';
+import type { Options } from 'tsup';
 import { defineConfig } from 'tsup';
-
 
 export const createTsupConfig = (options: Partial<Options> = {}) => {
   return defineConfig({
@@ -102,7 +101,7 @@ export const createUtilsConfig = (options: Partial<Options> = {}) => {
 export const createReactConfig = (options: Partial<Options> = {}) => {
   return createTsupConfig({
     // React component specific config
-    external: ['react', 'react-dom', ...(options.external as readonly string[]) || []],
+    external: ['react', 'react-dom', ...((options.external as readonly string[]) || [])],
     ...options,
   });
 };
