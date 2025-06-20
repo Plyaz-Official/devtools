@@ -94,19 +94,5 @@ jobs:
           pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
 
       - name: Check for known vulnerabilities
-        if: ${{ !inputs.skip_enhanced_audit }}
-        run: |
-          echo "🔬 Running enhanced security checks..."
-          
-          # Use audit-ci which supports pnpm
-          npx audit-ci --moderate
-          
-          # Check for known vulnerabilities in dependencies
-          npx check-audit --moderate
-          
-      - name: Security summary
-        if: always()
-        run: |
-          echo "✅ Security scan completed"
-          echo "📊 Audit level: ${{ inputs.audit_level || 'moderate' }}"
-          echo "🔍 Enhanced checks: ${{ inputs.skip_enhanced_audit && 'Skipped' || 'Enabled' }}"
+        if: ${{ !inputs.skip_better_audit }}
+        run: npx better-npm-audit audit --level ${{ inputs.audit_level || 'moderate' }}
