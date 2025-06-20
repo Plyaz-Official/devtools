@@ -1458,7 +1458,7 @@ export function createMarkdownConfig() {
         'markdownlint/md021': 'error', // Multiple spaces inside hashes on closed atx style heading
         'markdownlint/md022': ['error', { lines_above: 1, lines_below: 1 }], // Headings surrounded by blank lines
         'markdownlint/md023': 'error', // Headings must start at the beginning of the line
-        'markdownlint/md024': ['error', { allow_different_nesting: true }], // Multiple headings with the same content
+        'markdownlint/md024': 'error', // Multiple headings with the same content
         'markdownlint/md025': ['error', { level: 1 }], // Multiple top level headings
         'markdownlint/md026': ['error', { punctuation: '.,;:!?' }], // Trailing punctuation in heading
         'markdownlint/md027': 'error', // Multiple spaces after blockquote symbol
@@ -1488,9 +1488,6 @@ export function createMarkdownConfig() {
         'markdownlint/md048': ['error', { style: 'backtick' }], // Code fence style
         'markdownlint/md049': ['error', { style: 'underscore' }], // Emphasis style
         'markdownlint/md050': ['error', { style: 'asterisk' }], // Strong style
-        'markdownlint/md051': 'error', // Link fragments should be valid
-        'markdownlint/md052': 'error', // Reference links and images should use a label
-        'markdownlint/md053': 'error', // Link and image reference definitions should be needed
       },
     },
 
