@@ -1,61 +1,12 @@
-# .github/workflows/deploy.yml
 name: Install + Build + Deploy
-
-# ----------------------------------------------------------------------------------
-# 🔧 CI Workflow: Install, Lint, Build, Test (Optional: Format & Type Check)
-#
-# This workflow runs on push or pull request to `main`, `dev`, or `staging` branches.
-#
-# It ensures:
-# 1. Dependency installation using `pnpm`
-# 2. Static checks like linting and unit testing
-# 3. Builds the project using your defined build script
-#
-# Optional steps:
-# - Format check: pnpm format:check
-# - Type check: pnpm type:check
-#
-# ✅ Recommended for all PRs and deployments to ensure build and code quality.
-# ----------------------------------------------------------------------------------
-
 on:
   push:
-    branches: [main, dev, staging]
-  pull_request:
-    branches: [main, dev, staging]
-
-# Minimal read access required unless write/publish is added later
-permissions:
-  contents: read
+    branches: [main]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      # 📥 Checkout code
-      - uses: actions/checkout@v3
-
-      # 🧰 Setup pnpm (preferred package manager)
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-
-      # 📦 Install dependencies
-      - run: pnpm install
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
-
-      # 🛠️ Build project
-      - run: pnpm build
-
-      # ✅ Lint codebase
-      - run: pnpm lint
-
-      # 🧪 Run tests
-      - run: pnpm test
-
-      # 🧹 Check code formatting
-      - run: pnpm format:check
-
-      # 🧠 Type checking (e.g. with tsc or tsx)
-      - run: pnpm type:check
+  build-deploy:
+    uses: Plyaz-Official/devtools/.github/workflows/deploy.yml@main
+    with:
+      node_version: '20.x'
+      skip_type_check: true
+    secrets: inherit

@@ -5,6 +5,7 @@ name: Install + Build + Deploy
 # 🔧 CI Workflow: Install, Lint, Build, Test (Optional: Format & Type Check)
 #
 # This workflow runs on push or pull request to `main`, `dev`, or `staging` branches.
+# It can also be called as a reusable workflow from other repositories.
 #
 # It ensures:
 # 1. Dependency installation using `pnpm`
@@ -23,6 +24,33 @@ on:
     branches: [main, dev, staging]
   pull_request:
     branches: [main, dev, staging]
+  
+  # Allow being called as reusable workflow from other repos
+  workflow_call:
+    inputs:
+      node_version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '22.4.x'
+      pnpm_version:
+        description: 'pnpm version to use'
+        required: false
+        type: string
+        default: '8'
+      skip_format_check:
+        description: 'Skip format checking step'
+        required: false
+        type: boolean
+        default: false
+      skip_type_check:
+        description: 'Skip type checking step'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      NPM_PRIVATE_PACKAGE_TOKEN:
+        required: false
 
 # Minimal read access required unless write/publish is added later
 permissions:
@@ -33,29 +61,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 📥 Checkout code
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # 🧰 Setup pnpm (preferred package manager)
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: ${{ inputs.pnpm_version || '8' }}
+
+      # 📦 Setup Node.js
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version || '22.4.x' }}
+          cache: 'pnpm'
 
       # 📦 Install dependencies
-      - run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
         env:
           NPM_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
 
       # 🛠️ Build project
-      - run: pnpm build
+      - name: Build project
+        run: pnpm build
 
       # ✅ Lint codebase
-      - run: pnpm lint
+      - name: Lint codebase
+        run: pnpm lint
 
       # 🧪 Run tests
-      - run: pnpm test
+      - name: Run tests
+        run: pnpm test
 
-      # 🧹 Check code formatting
-      - run: pnpm format:check
+      # 🧹 Check code formatting (optional)
+      - name: Check code formatting
+        if: ${{ !inputs.skip_format_check }}
+        run: pnpm format:check
 
-      # 🧠 Type checking (e.g. with tsc or tsx)
-      - run: pnpm type:check
+      # 🧠 Type checking (optional)
+      - name: Type checking
+        if: ${{ !inputs.skip_type_check }}
+        run: pnpm type:check

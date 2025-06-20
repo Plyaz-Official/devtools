@@ -13,6 +13,7 @@ name: 'Security'
 # 🔁 Triggers:
 # - On push to: main, dev, staging
 # - On pull requests targeting: main, dev, staging
+# - Can be called as reusable workflow from other repositories
 #
 # 🔐 Related Docs:
 # - Dependency Review: https://github.com/actions/dependency-review-action
@@ -25,6 +26,38 @@ on:
     branches: [main, dev, staging]
   pull_request:
     branches: [main, dev, staging]
+  
+  # Allow being called as reusable workflow from other repos
+  workflow_call:
+    inputs:
+      pnpm_version:
+        description: 'pnpm version to use'
+        required: false
+        type: string
+        default: '8'
+      audit_level:
+        description: 'Audit severity level (low, moderate, high, critical)'
+        required: false
+        type: string
+        default: 'moderate'
+      dependency_review_severity:
+        description: 'Dependency review fail threshold (low, moderate, high, critical)'
+        required: false
+        type: string
+        default: 'moderate'
+      comment_summary:
+        description: 'Post dependency review summary as PR comment'
+        required: false
+        type: string
+        default: 'always'
+      skip_better_audit:
+        description: 'Skip better-npm-audit check'
+        required: false
+        type: boolean
+        default: false
+    secrets:
+      GITHUB_TOKEN:
+        required: false
 
 # Permissions required for this workflow to operate correctly
 permissions:
@@ -49,14 +82,14 @@ jobs:
       - name: 'Dependency Review'
         uses: actions/dependency-review-action@v4
         with:
-          comment-summary-in-pr: always     # Leave a summary comment on the PR
-          fail-on-severity: moderate        # Fail if any vulnerable dep has severity >= moderate
+          comment-summary-in-pr: ${{ inputs.comment_summary || 'always' }}
+          fail-on-severity: ${{ inputs.dependency_review_severity || 'moderate' }}
 
   # --------------------------------------
   # 🛡️ pnpm Audit & better-npm-audit
   #
   # Runs on push and PR events. Performs security audits of the dependency tree
-  # using both native `pnpm audit` and IBM’s `better-npm-audit` for deeper checks.
+  # using both native `pnpm audit` and IBM's `better-npm-audit` for deeper checks.
   # --------------------------------------
   dependency-audit:
     runs-on: ubuntu-latest
@@ -64,16 +97,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: ${{ inputs.pnpm_version || '8' }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.4.x'
+          cache: 'pnpm'
 
       - name: Install dependencies
         run: pnpm install
 
       - name: Run security audit
-        run: pnpm audit --audit-level moderate  # Set desired threshold (low | moderate | high | critical)
+        run: pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
 
       - name: Check for known vulnerabilities
-        run: npx better-npm-audit audit --level moderate
+        if: ${{ !inputs.skip_better_audit }}
+        run: npx better-npm-audit audit --level ${{ inputs.audit_level || 'moderate' }}
