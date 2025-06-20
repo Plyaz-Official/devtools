@@ -51,11 +51,6 @@ on:
         required: false
         type: string
         default: 'public'
-      skip_git_checks:
-        description: 'Skip git checks during publish'
-        required: false
-        type: boolean
-        default: true
     secrets:
       NPM_PRIVATE_PACKAGE_TOKEN:
         required: true
@@ -126,11 +121,6 @@ jobs:
 
       # 🚀 Publish the package to npm (public access, skip Git checks)
       - name: Publish to npm
-        run: |
-          if [ "${{ inputs.skip_git_checks }}" = "true" ]; then
-            pnpm publish --access ${{ inputs.package_access || 'public' }} --no-git-checks
-          else
-            pnpm publish --access ${{ inputs.package_access || 'public' }}
-          fi
+        run: pnpm publish --access ${{ inputs.package_access || 'public' }} --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
