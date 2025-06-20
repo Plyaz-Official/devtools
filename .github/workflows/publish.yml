@@ -59,8 +59,6 @@ on:
     secrets:
       NPM_PRIVATE_PACKAGE_TOKEN:
         required: true
-      GITHUB_TOKEN:
-        required: false
 
 jobs:
   publish:

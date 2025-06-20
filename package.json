@@ -6,6 +6,10 @@
   "scripts": {
     "build": "pnpm clean && tsc -p tsconfig.json",
     "test": "vitest run",
+    "test:ci": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage",
+    "test:ui": "vitest --ui",
     "release:publish": "pnpm publish --access public",
     "publish:ci": "pnpm publish --access public --no-git-checks",
     "lint": "eslint ./examples/backend ./examples/frontend ./examples/package",

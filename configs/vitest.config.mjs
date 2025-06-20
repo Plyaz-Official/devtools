@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
+import process from 'node:process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -34,6 +35,9 @@ export default defineConfig({
         'coverage/',
         'tests/',
         '**/*.d.ts',
+        '**/*.config.*',
+        '**/coverage/**',
+        '**/*.d.ts',
         '**/*.test.{ts,tsx}',
         '**/*.spec.{ts,tsx}',
         '**/index.ts', // Usually just exports
@@ -58,9 +62,11 @@ export default defineConfig({
     hookTimeout: 10_000,
 
     // Watch options
-    watch: {
-      include: ['src/**/*', 'tests/**/*'],
-    },
+    watch: !process.env.CI
+      ? false
+      : {
+          include: ['src/**/*', 'tests/**/*'],
+        },
 
     // Pool options for better performance
     pool: 'threads',
