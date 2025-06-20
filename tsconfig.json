@@ -7,7 +7,7 @@
   },
   "include": [
     "configs/**/*.ts"
-  ],
+, "configs/tailwind.config.js"  ],
   "exclude": [
     "dist",
     "node_modules",
