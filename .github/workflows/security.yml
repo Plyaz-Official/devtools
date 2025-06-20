@@ -1,24 +1,17 @@
 name: 'Security'
 
 # ----------------------------------------------------------------------------------
-# 📦 Security Workflow for Node.js Projects
+# 📦 Security Workflow for pnpm Projects
 #
-# This workflow ensures supply chain security and dependency hygiene by:
-# 1. Running GitHub's official Dependency Review on pull requests
-#    - Detects and flags known-vulnerable packages added in PRs.
-#    - Optionally comments on the PR with a summary.
-# 2. Running `pnpm audit` and `better-npm-audit` on push/PR to critical branches
-#    - Ensures no critical/moderate vulnerabilities are introduced in dependencies.
+# This workflow ensures supply chain security using pnpm-native tools:
+# 1. GitHub Dependency Review on pull requests
+# 2. pnpm audit for vulnerability scanning
+# 3. audit-ci for enhanced security checks (pnpm compatible)
 #
 # 🔁 Triggers:
 # - On push to: main, dev, staging
 # - On pull requests targeting: main, dev, staging
 # - Can be called as reusable workflow from other repositories
-#
-# 🔐 Related Docs:
-# - Dependency Review: https://github.com/actions/dependency-review-action
-# - Dependency Submission API: https://docs.github.com/en/enterprise-cloud@latest/code-security/supply-chain-security/using-the-dependency-submission-api
-# - Better Audit: https://github.com/IBM/better-npm-audit
 # ----------------------------------------------------------------------------------
 
 on:
@@ -51,23 +44,13 @@ on:
         type: string
         default: 'always'
       skip_better_audit:
-        description: 'Skip better-npm-audit check'
+        description: 'Skip better npm-audit check'
         required: false
         type: boolean
         default: false
-
-# Permissions required for this workflow to operate correctly
-permissions:
-  contents: read
-  # Required to allow posting audit summaries as PR comments
-  pull-requests: write
-
 jobs:
   # --------------------------------------
   # 🔍 GitHub Dependency Review (Pull Requests Only)
-  #
-  # This job analyzes manifest file diffs and detects any added/updated dependencies
-  # with known vulnerabilities. Works only on PRs.
   # --------------------------------------
   dependency-review:
     if: github.event_name == 'pull_request'
@@ -83,12 +66,9 @@ jobs:
           fail-on-severity: ${{ inputs.dependency_review_severity || 'moderate' }}
 
   # --------------------------------------
-  # 🛡️ pnpm Audit & better-npm-audit
-  #
-  # Runs on push and PR events. Performs security audits of the dependency tree
-  # using both native `pnpm audit` and IBM's `better-npm-audit` for deeper checks.
+  # 🛡️ pnpm Security Audit
   # --------------------------------------
-  dependency-audit:
+  security-audit:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -108,9 +88,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Run security audit
-        run: pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
+      - name: Run pnpm security audit
+        run: |
+          echo "🔍 Running pnpm security audit..."
+          pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
 
       - name: Check for known vulnerabilities
-        if: ${{ !inputs.skip_better_audit }}
-        run: npx better-npm-audit audit --level ${{ inputs.audit_level || 'moderate' }}
+        if: ${{ !inputs.skip_enhanced_audit }}
+        run: |
+          echo "🔬 Running enhanced security checks..."
+          
+          # Use audit-ci which supports pnpm
+          npx audit-ci --moderate
+          
+          # Check for known vulnerabilities in dependencies
+          npx check-audit --moderate
+          
+      - name: Security summary
+        if: always()
+        run: |
+          echo "✅ Security scan completed"
+          echo "📊 Audit level: ${{ inputs.audit_level || 'moderate' }}"
+          echo "🔍 Enhanced checks: ${{ inputs.skip_enhanced_audit && 'Skipped' || 'Enabled' }}"

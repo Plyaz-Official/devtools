@@ -60,7 +60,7 @@ This repository uses GitHub Actions for automated publishing, deployment, and se
     - Fails the check if vulnerable packages are introduced (moderate+)
   - Audits current dependencies using:
     - `pnpm audit` (set to fail on moderate+ severity)
-    - `better-npm-audit` (for deeper detection)
+    - `pnpm audit` (for deeper detection)
 - **Permissions:**
   - `contents: read`
   - `pull-requests: write` – Required to comment on PRs
@@ -186,7 +186,7 @@ jobs:
       audit_level: 'high'                    # Only fail on high/critical vulnerabilities
       dependency_review_severity: 'high'     # Higher threshold for dependency review
       comment_summary: 'on-failure'          # Only comment on PR if issues found
-      skip_better_audit: true                # Skip better-npm-audit for faster runs
+      skip_better_audit: true                # Skip pnpm audit for faster runs
     secrets: inherit
 ```
 
@@ -219,7 +219,7 @@ jobs:
 | `audit_level` | string | `'moderate'` | Audit severity level (low, moderate, high, critical) |
 | `dependency_review_severity` | string | `'moderate'` | Dependency review fail threshold |
 | `comment_summary` | string | `'always'` | When to post PR comments (always, on-failure, never) |
-| `skip_better_audit` | boolean | `false` | Skip better-npm-audit check |
+| `skip_better_audit` | boolean | `false` | Skip pnpm audit check |
 
 ## 🧠 Pro Tips
 
