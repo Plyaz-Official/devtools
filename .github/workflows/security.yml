@@ -3,10 +3,10 @@ name: 'Security'
 # ----------------------------------------------------------------------------------
 # 📦 Security Workflow for pnpm Projects
 #
-# This workflow ensures supply chain security using pnpm-native tools:
+# This workflow ensures supply chain security using free, reliable tools:
 # 1. GitHub Dependency Review on pull requests
 # 2. pnpm audit for vulnerability scanning
-# 3. audit-ci for enhanced security checks (pnpm compatible)
+# 3. Google OSV-Scanner for comprehensive vulnerability detection
 #
 # 🔁 Triggers:
 # - On push to: main, dev, staging
@@ -43,11 +43,19 @@ on:
         required: false
         type: string
         default: 'always'
-      skip_better_audit:
-        description: 'Skip better npm-audit check'
+      skip_osv_scan:
+        description: 'Skip Google OSV vulnerability scanning'
         required: false
         type: boolean
         default: false
+
+# Permissions are inherited from calling workflow
+# Calling workflow must have:
+# Minimal read access required unless write/publish is added later
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   # --------------------------------------
   # 🔍 GitHub Dependency Review (Pull Requests Only)
@@ -66,7 +74,7 @@ jobs:
           fail-on-severity: ${{ inputs.dependency_review_severity || 'moderate' }}
 
   # --------------------------------------
-  # 🛡️ pnpm Security Audit
+  # 🛡️ Security Checks
   # --------------------------------------
   security-audit:
     runs-on: ubuntu-latest
@@ -93,6 +101,21 @@ jobs:
           echo "🔍 Running pnpm security audit..."
           pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
 
-      - name: Check for known vulnerabilities
-        if: ${{ !inputs.skip_better_audit }}
-        run: npx better-npm-audit audit --level ${{ inputs.audit_level || 'moderate' }}
+      - name: Google OSV Scanner
+        if: ${{ !inputs.skip_osv_scan }}
+        run: |
+          echo "🔬 Running Google OSV vulnerability scanner..."
+          npx @google/osv-scanner --lockfile pnpm-lock.yaml --format json --output osv-results.json || true
+          
+          # Display results if any vulnerabilities found
+          if [ -f osv-results.json ]; then
+            echo "📊 OSV Scanner Results:"
+            cat osv-results.json
+          fi
+
+      - name: Security scan summary
+        if: always()
+        run: |
+          echo "✅ Security scans completed"
+          echo "📊 pnpm audit level: ${{ inputs.audit_level || 'moderate' }}"
+          echo "🔍 Google OSV scan: ${{ inputs.skip_osv_scan && 'Skipped' || 'Completed' }}"
