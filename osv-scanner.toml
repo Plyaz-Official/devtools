@@ -3,10 +3,8 @@
 
 # Ignore specific vulnerabilities by ID
 [[IgnoreVulns]]
-id = "GHSA-v6h2-p8h4-gcjq"
-reason = "brace-expansion@1.1.11 - CVSS 3.1 (LOW). 
-         Used only in build tooling, not in production runtime.
-         Scheduled for update in next maintenance window."
+id = "GHSA-v6h2-p8h4-gcjq"  # brace-expansion (CVSS 3.1 - LOW)
+reason = "Low severity, does not impact our security posture. Tracked for future update."
 
 # Alternative: Ignore by package and version
 # [[IgnoreVulns]]
