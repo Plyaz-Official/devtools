@@ -1,34 +1,19 @@
 name: Publish Package
 
 # ----------------------------------------------------------------------------------
-# 🚀 Publish Package Workflow (Main Branch)
+# 🚀 Enhanced PR-Based Automated Publishing with Detailed Changelogs
 #
-# This workflow builds and publishes the package to the public npm registry
-# whenever a commit is pushed to the `main` branch.
-# It can also be called as a reusable workflow from other repositories.
-#
-# It performs the following steps:
-# 1. Authenticates with GitHub and npm
-# 2. Installs dependencies and caches pnpm store
-# 3. Builds the project
-# 4. Runs the release script (typically bumps version via semantic-release or similar)
-# 5. Pushes version bump commit and Git tags back to origin
-# 6. Publishes the built package to npm with `--access public`
-#
-# 🔐 Requirements:
-# - `NPM_PRIVATE_PACKAGE_TOKEN` secret must be set in repository secrets.
-# - Package must be configured correctly in `package.json` (with `name`, `version`, etc.)
-#
-# 📝 Trigger:
-# - Only runs on `push` to the `main` branch.
-# - Can be called as reusable workflow from other repositories.
+# This workflow creates detailed git commits and tags with:
+# - PR information (title, labels)
+# - List of commits included in the release
+# - Version bump reasoning
+# - Direct npm package links
 # ----------------------------------------------------------------------------------
 
 on:
   push:
     branches: [main]
   
-  # Allow being called as reusable workflow from other repos
   workflow_call:
     inputs:
       node_version:
@@ -41,13 +26,8 @@ on:
         required: false
         type: string
         default: '8'
-      registry_url:
-        description: 'npm registry URL'
-        required: false
-        type: string
-        default: 'https://registry.npmjs.org'
       package_access:
-        description: 'Package access level (public/restricted)'
+        description: 'Package access level'
         required: false
         type: string
         default: 'public'
@@ -58,69 +38,212 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-
-    # 🔐 Permissions required for pushing code and publishing packages
-    permissions:
-      contents: write     # To push commits/tags
-      packages: write     # To publish to GitHub Packages (optional here, but good practice)
-
+    
     steps:
-      # 🧾 Checkout the repository
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN || github.token }}
+          token: ${{ github.token }}
+          fetch-depth: 0
 
-      # 📦 Setup pnpm
       - uses: pnpm/action-setup@v2
         with:
           version: ${{ inputs.pnpm_version || '8' }}
 
-      # 📦 Setup Node.js and registry config
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version || '22.4.x' }}
-          registry-url: ${{ inputs.registry_url || 'https://registry.npmjs.org' }}
+          registry-url: 'https://registry.npmjs.org'
           cache: 'pnpm'
 
-      # 🔐 Authenticate with npm registry using secret token
-      - name: Authenticate with npm
-        run: echo "//${{ inputs.registry_url || 'registry.npmjs.org' }}/:_authToken=${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}" > ~/.npmrc
-
-      # 💾 Restore pnpm cache to speed up install
-      - name: Setup pnpm cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.pnpm-store
-          key: pnpm-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            pnpm-${{ runner.os }}-
-
-      # 🔧 Configure Git identity for pushing version bump commits
-      - name: Configure Git
+      - name: Configure Git and npm
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}" > ~/.npmrc
 
-      # 📥 Install dependencies
-      - name: Install dependencies
-        run: pnpm install
-
-      # 🛠️ Build the project
-      - name: Build project
-        run: pnpm build
-
-      # 🏷️ Run release script (e.g., semantic-release, standard-version, etc.)
-      - name: Run release script
-        run: pnpm run release
-
-      # 🔁 Push version bump commit and Git tags back to main
-      - name: Push version bump commit and tags
+      - name: Install and build
         run: |
-          git push origin main
-          git push origin --tags
+          pnpm install
+          pnpm build
 
-      # 🚀 Publish the package to npm (public access, skip Git checks)
+      # 🔍 Get detailed PR and commit information
+      - name: Get PR and commit information
+        id: pr_info
+        run: |
+          # Get the merge commit message
+          COMMIT_MSG=$(git log -1 --pretty=format:"%s %b")
+          echo "Latest commit: $COMMIT_MSG"
+          
+          # Extract PR number from merge commit
+          PR_NUMBER=$(echo "$COMMIT_MSG" | grep -o "#[0-9]\+" | head -1 | sed 's/#//')
+          
+          if [ -n "$PR_NUMBER" ]; then
+            echo "Found PR number: $PR_NUMBER"
+            
+            # Get PR details using GitHub API
+            PR_DATA=$(curl -s -H "Authorization: token ${{ github.token }}" \
+              "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
+            
+            PR_TITLE=$(echo "$PR_DATA" | jq -r '.title // empty')
+            PR_LABELS=$(echo "$PR_DATA" | jq -r '.labels[].name' | tr '\n' ',' | sed 's/,$//')
+            PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login // empty')
+            
+            echo "PR #$PR_NUMBER: $PR_TITLE"
+            echo "Labels: $PR_LABELS"
+            echo "Author: $PR_AUTHOR"
+          else
+            PR_TITLE="$COMMIT_MSG"
+            PR_LABELS=""
+            PR_AUTHOR=$(git log -1 --pretty=format:"%an")
+            echo "Direct commit (no PR): $PR_TITLE"
+          fi
+          
+          # Get commit list since last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$LAST_TAG" ]; then
+            echo "Getting commits since $LAST_TAG"
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"- %s (%an)" --no-merges 2>/dev/null || echo "")
+          else
+            echo "No previous tags, getting recent commits"
+            COMMITS=$(git log -5 --pretty=format:"- %s (%an)" --no-merges)
+          fi
+          
+          # Store outputs
+          echo "pr_number=${PR_NUMBER:-'N/A'}" >> $GITHUB_OUTPUT
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_labels=$PR_LABELS" >> $GITHUB_OUTPUT
+          echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
+          echo "last_tag=${LAST_TAG:-'(none)'}" >> $GITHUB_OUTPUT
+          
+          # Store commits in a file for multi-line handling
+          echo "$COMMITS" > commits.txt
+
+      # 🏷️ Determine version bump
+      - name: Determine version bump
+        id: version_bump
+        run: |
+          PR_TITLE="${{ steps.pr_info.outputs.pr_title }}"
+          PR_LABELS="${{ steps.pr_info.outputs.pr_labels }}"
+          
+          VERSION_BUMP="patch"
+          REASON="Default patch version"
+          
+          # Check PR labels first
+          if echo "$PR_LABELS" | grep -i "breaking\|major"; then
+            VERSION_BUMP="major"
+            REASON="Breaking change (label: breaking/major)"
+          elif echo "$PR_LABELS" | grep -i "feature\|feat\|minor"; then
+            VERSION_BUMP="minor"
+            REASON="New feature (label: feature/feat/minor)"
+          elif echo "$PR_LABELS" | grep -i "fix\|patch\|bug"; then
+            VERSION_BUMP="patch"
+            REASON="Bug fix (label: fix/patch/bug)"
+          # Check PR title
+          elif echo "$PR_TITLE" | grep -i "^feat\|^feature"; then
+            VERSION_BUMP="minor"
+            REASON="New feature (title starts with 'feat:')"
+          elif echo "$PR_TITLE" | grep -i "^fix\|^bug"; then
+            VERSION_BUMP="patch"
+            REASON="Bug fix (title starts with 'fix:')"
+          elif echo "$PR_TITLE" | grep -i "breaking\|BREAKING CHANGE"; then
+            VERSION_BUMP="major"
+            REASON="Breaking change (title contains 'breaking')"
+          fi
+          
+          echo "Version bump: $VERSION_BUMP ($REASON)"
+          echo "version_bump=$VERSION_BUMP" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+
+      # 📦 Check and bump version if needed
+      - name: Check and bump version
+        id: version_check
+        run: |
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          if npm view "$PACKAGE_NAME@$CURRENT_VERSION" version 2>/dev/null; then
+            echo "📈 Version $CURRENT_VERSION exists, bumping to ${{ steps.version_bump.outputs.version_bump }}"
+            npm version ${{ steps.version_bump.outputs.version_bump }} --no-git-tag-version
+            NEW_VERSION=$(node -p "require('./package.json').version")
+            echo "needs_commit=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Version $CURRENT_VERSION not published, will use current version"
+            NEW_VERSION="$CURRENT_VERSION"
+            echo "needs_commit=false" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "final_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      # 🔁 Create detailed commit and tag
+      - name: Create detailed commit and tag
+        if: steps.version_check.outputs.needs_commit == 'true'
+        run: |
+          VERSION="${{ steps.version_check.outputs.final_version }}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          
+          # Read commits from file
+          COMMITS=$(cat commits.txt)
+          
+          # Create comprehensive commit message
+          cat > release_message.txt << EOF
+          chore: release v$VERSION
+
+          ## Release Information
+          
+          **Package:** $PACKAGE_NAME@$VERSION
+          **Version Bump:** ${{ steps.version_bump.outputs.version_bump }}
+          **Reason:** ${{ steps.version_bump.outputs.reason }}
+          **Previous Tag:** ${{ steps.pr_info.outputs.last_tag }}
+          
+          ## Source Changes
+          
+          **PR #${{ steps.pr_info.outputs.pr_number }}:** ${{ steps.pr_info.outputs.pr_title }}
+          **Author:** ${{ steps.pr_info.outputs.pr_author }}
+          **Labels:** ${{ steps.pr_info.outputs.pr_labels }}
+          
+          ## Commits Included
+          
+          $COMMITS
+          
+          ## Package Info
+          
+          📦 **npm:** https://www.npmjs.com/package/$PACKAGE_NAME/v/$VERSION
+          🏷️ **Tag:** v$VERSION
+          📅 **Released:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          EOF
+          
+          echo "📝 Release message:"
+          cat release_message.txt
+          
+          # Commit with detailed message
+          git add package.json
+          git commit -F release_message.txt
+          
+          # Create annotated tag with same info
+          git tag -a "v$VERSION" -F release_message.txt
+          
+          # Push commit and tag
+          git push origin main
+          git push origin "v$VERSION"
+
+      # 🚀 Publish to npm
       - name: Publish to npm
-        run: pnpm publish --access ${{ inputs.package_access || 'public' }} --no-git-checks
+        run: |
+          VERSION="${{ steps.version_check.outputs.final_version }}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          echo "🚀 Publishing $PACKAGE_NAME@$VERSION to npm..."
+          pnpm publish --access ${{ inputs.package_access || 'public' }} --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_PRIVATE_PACKAGE_TOKEN }}
+
+      # 📊 Summary
+      - name: Publish summary
+        if: always()
+        run: |
+          VERSION="${{ steps.version_check.outputs.final_version }}"
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
+          echo "✅ **Published:** $PACKAGE_NAME@$VERSION"
+          echo "🔗 **npm URL:** https://www.npmjs.com/package/$PACKAGE_NAME"
+          echo "📦 **Version bump:** ${{ steps.version_bump.outputs.version_bump }}"
+          echo "💡 **Reason:** ${{ steps.version_bump.outputs.reason }}"
+          echo "🏷️ **Git tag:** v$VERSION"
