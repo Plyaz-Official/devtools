@@ -106,7 +106,7 @@ jobs:
   # 🔬 Google OSV-Scanner (Uses Official Reusable Workflow)
   # --------------------------------------
   osv-scan:
-    if: ${{ !inputs.skip_osv_scan }}
+    if: ${{ inputs.skip_osv_scan != true }}
     uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.0.3"
     with:
       scan-args: |-
