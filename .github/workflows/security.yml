@@ -3,10 +3,10 @@ name: 'Security'
 # ----------------------------------------------------------------------------------
 # 📦 Security Workflow for pnpm Projects
 #
-# This workflow ensures supply chain security using free, reliable tools:
+# This workflow ensures supply chain security using:
 # 1. GitHub Dependency Review on pull requests
-# 2. pnpm audit for vulnerability scanning
-# 3. Google OSV-Scanner for comprehensive vulnerability detection
+# 2. pnpm audit for npm-specific vulnerability scanning
+# 3. Google OSV-Scanner for comprehensive vulnerability scanning
 #
 # 🔁 Triggers:
 # - On push to: main, dev, staging
@@ -53,8 +53,9 @@ on:
 # Calling workflow must have:
 # Minimal read access required unless write/publish is added later
 permissions:
-  contents: read
-  pull-requests: write
+   contents: read
+   pull-requests: write
+   security-events: write
 
 jobs:
   # --------------------------------------
@@ -74,7 +75,7 @@ jobs:
           fail-on-severity: ${{ inputs.dependency_review_severity || 'moderate' }}
 
   # --------------------------------------
-  # 🛡️ Security Checks
+  # 🛡️ pnpm Security Audit
   # --------------------------------------
   security-audit:
     runs-on: ubuntu-latest
@@ -101,21 +102,20 @@ jobs:
           echo "🔍 Running pnpm security audit..."
           pnpm audit --audit-level ${{ inputs.audit_level || 'moderate' }}
 
-      - name: Google OSV Scanner
-        if: ${{ !inputs.skip_osv_scan }}
-        run: |
-          echo "🔬 Running Google OSV vulnerability scanner..."
-          npx @google/osv-scanner --lockfile pnpm-lock.yaml --format json --output osv-results.json || true
-          
-          # Display results if any vulnerabilities found
-          if [ -f osv-results.json ]; then
-            echo "📊 OSV Scanner Results:"
-            cat osv-results.json
-          fi
-
-      - name: Security scan summary
-        if: always()
-        run: |
-          echo "✅ Security scans completed"
-          echo "📊 pnpm audit level: ${{ inputs.audit_level || 'moderate' }}"
-          echo "🔍 Google OSV scan: ${{ inputs.skip_osv_scan && 'Skipped' || 'Completed' }}"
+  # --------------------------------------
+  # 🔬 Google OSV-Scanner (Uses Official Reusable Workflow)
+  # --------------------------------------
+  osv-scan:
+    if: ${{ !inputs.skip_osv_scan }}
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.0.3"
+    with:
+      scan-args: |-
+        --recursive
+        ./
+    permissions:
+      # Required for uploading SARIF to Security tab
+      security-events: write
+      # Required to read repository contents
+      contents: read
+      # Required to access actions
+      actions: read
