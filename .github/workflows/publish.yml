@@ -91,7 +91,8 @@ jobs:
             PR_DATA=$(curl -s -H "Authorization: token ${{ github.token }}" \
               "https://api.github.com/repos/${{ github.repository }}/pulls/$PR_NUMBER")
             
-            PR_TITLE=$(echo "$PR_DATA" | jq -r '.title // empty')
+            # Safely extract PR data with proper escaping
+            PR_TITLE=$(echo "$PR_DATA" | jq -r '.title // empty' | sed 's/`//g' | sed "s/'//g")
             PR_LABELS=$(echo "$PR_DATA" | jq -r '.labels[].name' | tr '\n' ',' | sed 's/,$//')
             PR_AUTHOR=$(echo "$PR_DATA" | jq -r '.user.login // empty')
             
@@ -99,7 +100,8 @@ jobs:
             echo "Labels: $PR_LABELS"
             echo "Author: $PR_AUTHOR"
           else
-            PR_TITLE="$COMMIT_MSG"
+            # Safely handle direct commits
+            PR_TITLE=$(echo "$COMMIT_MSG" | sed 's/`//g' | sed "s/'//g")
             PR_LABELS=""
             PR_AUTHOR=$(git log -1 --pretty=format:"%an")
             echo "Direct commit (no PR): $PR_TITLE"
@@ -115,9 +117,11 @@ jobs:
             COMMITS=$(git log -5 --pretty=format:"- %s (%an)" --no-merges)
           fi
           
-          # Store outputs
+          # Store outputs with proper escaping
           echo "pr_number=${PR_NUMBER:-'N/A'}" >> $GITHUB_OUTPUT
-          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_title<<EOF" >> $GITHUB_OUTPUT
+          echo "$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           echo "pr_labels=$PR_LABELS" >> $GITHUB_OUTPUT
           echo "pr_author=$PR_AUTHOR" >> $GITHUB_OUTPUT
           echo "last_tag=${LAST_TAG:-'(none)'}" >> $GITHUB_OUTPUT
