@@ -73,8 +73,38 @@ jobs:
           pnpm install
           pnpm build
 
+      # 🛡️ Template package protection
+      - name: Check for template package
+        id: template_check
+        run: |
+          echo "🔍 Checking package publishing permissions..."
+          
+          PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
+          
+          echo "📦 Package: $PACKAGE_NAME"
+          
+          # Check for explicit disable flag
+          DISABLE_PUBLISH=$(node -e "console.log(require('./package.json')['disable-publish'] || 'false')")
+          
+          if [ "$DISABLE_PUBLISH" = "true" ]; then
+            echo "🚫 PUBLISHING DISABLED!"
+            echo ""
+            echo "This package has 'disable-publish: true' in package.json"
+            echo "This is typically used for template packages or packages not ready for publication."
+            echo ""
+            echo "To enable publishing, remove or set to false:"
+            echo '  "disable-publish": false'
+            echo ""
+            echo "❌ Stopping workflow to prevent publication"
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Publishing enabled - proceeding with release"
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+          fi
+
       # 🔍 Get detailed PR and commit information
       - name: Get PR and commit information
+        if: steps.template_check.outputs.should_publish == 'true'
         id: pr_info
         run: |
           # Get the merge commit message
@@ -131,6 +161,7 @@ jobs:
 
       # 🏷️ Determine version bump
       - name: Determine version bump
+        if: steps.template_check.outputs.should_publish == 'true'
         id: version_bump
         run: |
           PR_TITLE="${{ steps.pr_info.outputs.pr_title }}"
@@ -167,6 +198,7 @@ jobs:
 
       # 📦 Check and bump version if needed
       - name: Check and bump version
+        if: steps.template_check.outputs.should_publish == 'true'
         id: version_check
         run: |
           echo "🔍 Checking package.json..."
@@ -212,7 +244,7 @@ jobs:
 
       # 🔁 Create detailed commit and tag
       - name: Create detailed commit and tag
-        if: steps.version_check.outputs.needs_commit == 'true'
+        if: steps.template_check.outputs.should_publish == 'true' && steps.version_check.outputs.needs_commit == 'true'
         run: |
           VERSION="${{ steps.version_check.outputs.final_version }}"
           PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
@@ -264,6 +296,7 @@ jobs:
 
       # 🚀 Publish to npm
       - name: Publish to npm
+        if: steps.template_check.outputs.should_publish == 'true'
         run: |
           VERSION="${{ steps.version_check.outputs.final_version }}"
           PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
@@ -276,10 +309,22 @@ jobs:
       - name: Publish summary
         if: always()
         run: |
-          VERSION="${{ steps.version_check.outputs.final_version }}"
-          PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
-          echo "✅ **Published:** $PACKAGE_NAME@$VERSION"
-          echo "🔗 **npm URL:** https://www.npmjs.com/package/$PACKAGE_NAME"
-          echo "📦 **Version bump:** ${{ steps.version_bump.outputs.version_bump }}"
-          echo "💡 **Reason:** ${{ steps.version_bump.outputs.reason }}"
-          echo "🏷️ **Git tag:** v$VERSION"
+          if [ "${{ steps.template_check.outputs.should_publish }}" = "false" ]; then
+            echo "🚫 **Publishing Disabled - Publication Blocked**"
+            echo ""
+            echo "This package has 'disable-publish: true' in package.json"
+            echo ""
+            echo "📝 **To enable publishing:**"
+            echo "Remove the disable-publish flag or set it to false in package.json:"
+            echo '  "disable-publish": false'
+            echo ""
+            echo "This is commonly used for template packages or packages not ready for release."
+          else
+            VERSION="${{ steps.version_check.outputs.final_version }}"
+            PACKAGE_NAME=$(node -e "console.log(require('./package.json').name)")
+            echo "✅ **Published:** $PACKAGE_NAME@$VERSION"
+            echo "🔗 **npm URL:** https://www.npmjs.com/package/$PACKAGE_NAME"
+            echo "📦 **Version bump:** ${{ steps.version_bump.outputs.version_bump }}"
+            echo "💡 **Reason:** ${{ steps.version_bump.outputs.reason }}"
+            echo "🏷️ **Git tag:** v$VERSION"
+          fi
