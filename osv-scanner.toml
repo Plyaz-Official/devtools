@@ -1,0 +1,22 @@
+# OSV-Scanner configuration file
+# Place this file in your repository root as osv-scanner.toml
+
+# Ignore specific vulnerabilities by ID
+[[IgnoreVulns]]
+id = "GHSA-v6h2-p8h4-gcjq"
+reason = "brace-expansion@1.1.11 - CVSS 3.1 (LOW). 
+         Used only in build tooling, not in production runtime.
+         Scheduled for update in next maintenance window."
+
+# Alternative: Ignore by package and version
+# [[IgnoreVulns]]
+# id = "GHSA-v6h2-p8h4-gcjq"
+# package.name = "brace-expansion"
+# package.version = "1.1.11"
+# reason = "Legacy dependency, isolated usage"
+
+# Global settings
+[LoadPath]
+# Specify custom paths if needed
+# npm = ["custom-package-lock.json"]
+# pnpm = ["custom-pnpm-lock.yaml"]

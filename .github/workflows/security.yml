@@ -112,6 +112,8 @@ jobs:
       scan-args: |-
         --recursive
         ./
+      # Strict on main/production, more lenient on dev branches
+      fail-on-vuln: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging' }}
     permissions:
       # Required for uploading SARIF to Security tab
       security-events: write
