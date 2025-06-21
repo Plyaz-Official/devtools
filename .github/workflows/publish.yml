@@ -39,11 +39,18 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     
+    # Required permissions for the workflow
+    permissions:
+      contents: write      # To push commits and tags
+      packages: write      # To publish packages (if needed)
+      pull-requests: read  # To read PR information
+    
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ github.token }}
           fetch-depth: 0
+          persist-credentials: true  # Ensure credentials persist for git operations
 
       - uses: pnpm/action-setup@v2
         with:
