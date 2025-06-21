@@ -3,24 +3,31 @@
 This repository uses GitHub Actions for automated publishing, deployment, and security auditing. Below is an overview of the main workflows included.
 
 ---
-
 ### 1. 📦 Publish Package Workflow
 
 - **File:** `.github/workflows/publish.yml`
 - **Trigger:** Push to the `main` branch
-- **Purpose:** Automates version bumping and package publishing to npm.
+- **Purpose:** Automates PR-based version bumping and package publishing to npm with detailed changelogs.
 - **Steps:**
-  - Checks out the repository
+  - Checks out the repository with full git history
   - Configures Git identity for automated commits
   - Sets up Node.js (v22.4.x) and pnpm (v8)
   - Authenticates with npm using the `NPM_PRIVATE_PACKAGE_TOKEN` secret
   - Installs dependencies and builds the project
-  - Runs the release script (`pnpm run release`)
-  - Pushes version bump commits and tags
+  - **Analyzes PR information** (title, labels, author) from GitHub API
+  - **Determines version bump** based on PR labels or conventional commit format:
+    - `breaking`/`major` label or `BREAKING` in title → **major** version
+    - `feature`/`feat` label or `feat:` in title → **minor** version  
+    - `fix`/`bug` label or `fix:` in title → **patch** version
+    - Default → **patch** version
+  - **Checks npm registry** to avoid duplicate publishing
+  - **Creates detailed commit message** with PR info, commit list, and package links
+  - **Pushes version bump commits and annotated tags** with comprehensive changelog
   - Publishes the package to npm with public access
 - **Permissions:**
   - `contents: write` – Push commits/tags
-  - `packages: write` – (optional for GitHub Packages)
+  - `packages: write` – Publish to npm
+  - `pull-requests: read` – Read PR information for changelog
 - **Authentication:** Requires `NPM_PRIVATE_PACKAGE_TOKEN` secret
 
 ---
@@ -34,15 +41,16 @@ This repository uses GitHub Actions for automated publishing, deployment, and se
 - **Purpose:** Validates code quality and prepares for deploys.
 - **Steps:**
   - Checks out the repository
-  - Sets up Node.js and pnpm (v8)
+  - Sets up Node.js (v22.4.x) and pnpm (v8) with caching
   - Installs dependencies with `pnpm install`
   - Runs build script (`pnpm build`)
   - Runs linting (`pnpm lint`)
   - Executes tests (`pnpm test`)
-  - _Optional:_
+  - **Optional (configurable):**
     - Format check: `pnpm format:check`
     - Type check: `pnpm type:check`
 - **Permissions:** `contents: read`
+- **Customization:** Steps can be skipped via input parameters
 - **Note:** Deployment steps can be added as needed
 
 ---
@@ -53,18 +61,26 @@ This repository uses GitHub Actions for automated publishing, deployment, and se
 - **Trigger:**
   - Push to: `main`, `dev`, `staging`
   - Pull request to: `main`, `dev`, `staging`
-- **Purpose:** Ensures dependency safety through review and auditing.
+- **Purpose:** Ensures dependency safety through comprehensive security scanning.
 - **Steps:**
-  - Runs GitHub's Dependency Review on PRs
-    - Posts a comment summary
-    - Fails the check if vulnerable packages are introduced (moderate+)
-  - Audits current dependencies using:
-    - `pnpm audit` (set to fail on moderate+ severity)
-    - `pnpm audit` (for deeper detection)
+  - **GitHub Dependency Review** (PRs only):
+    - Posts a comment summary on pull requests
+    - Fails the check if vulnerable packages are introduced (moderate+ severity)
+  - **pnpm Security Audit**:
+    - Runs `pnpm audit` with configurable severity levels
+    - Native pnpm vulnerability detection
+  - **Google OSV-Scanner**:
+    - Uses official Google OSV reusable workflow
+    - Comprehensive multi-ecosystem vulnerability scanning
+    - Uploads SARIF results to GitHub Security tab
+    - **Environment-specific behavior**: Strict on `main`/`staging`, lenient on dev branches
 - **Permissions:**
   - `contents: read`
   - `pull-requests: write` – Required to comment on PRs
-- **Note:** Extendable with SBOM, OSSAR, or other scanning tools
+  - `security-events: write` – Required for OSV-Scanner SARIF uploads
+  - `actions: read` – Required for OSV-Scanner
+- **Customization:** Audit levels, OSV scanning, and comment behavior are configurable
+- **Note:** Results appear in GitHub Security > Code Scanning tab
 
 ---
 
@@ -186,7 +202,6 @@ jobs:
       audit_level: 'high'                    # Only fail on high/critical vulnerabilities
       dependency_review_severity: 'high'     # Higher threshold for dependency review
       comment_summary: 'on-failure'          # Only comment on PR if issues found
-      skip_better_audit: true                # Skip pnpm audit for faster runs
     secrets: inherit
 ```
 
@@ -207,9 +222,7 @@ jobs:
 |-------|------|---------|-------------|
 | `node_version` | string | `'22.4.x'` | Node.js version to use |
 | `pnpm_version` | string | `'8'` | pnpm version to use |
-| `registry_url` | string | `'https://registry.npmjs.org'` | npm registry URL |
 | `package_access` | string | `'public'` | Package access level (public/restricted) |
-| `skip_git_checks` | boolean | `true` | Skip git checks during publish |
 
 ### Security Workflow Inputs
 
@@ -219,7 +232,49 @@ jobs:
 | `audit_level` | string | `'moderate'` | Audit severity level (low, moderate, high, critical) |
 | `dependency_review_severity` | string | `'moderate'` | Dependency review fail threshold |
 | `comment_summary` | string | `'always'` | When to post PR comments (always, on-failure, never) |
-| `skip_better_audit` | boolean | `false` | Skip pnpm audit check |
+| `skip_osv_scan` | boolean | `false` | Skip Google OSV vulnerability scanning |
+
+### Team Workflow
+
+```
+1. Developer creates PR with appropriate label or conventional title
+2. Team reviews and merges PR to main
+3. Workflow automatically:
+   - Detects version bump type
+   - Creates detailed changelog
+   - Bumps version if needed
+   - Publishes to npm
+   - Creates git tag with comprehensive information
+```
+
+### Example Release Information
+
+Each release creates detailed git commits and tags with:
+
+```
+chore: release v1.3.0
+
+## Release Information
+**Package:** @plyaz/package@1.3.0
+**Version Bump:** minor
+**Reason:** New feature (label: feature)
+**Previous Tag:** v1.2.5
+
+## Source Changes
+**PR #42:** feat: add user authentication system
+**Author:** john-developer
+**Labels:** feature,enhancement
+
+## Commits Included
+- Add JWT token validation (John Doe)
+- Update middleware for auth (Jane Smith)
+- Add comprehensive tests (John Doe)
+
+## Package Info
+📦 **npm:** https://www.npmjs.com/package/@plyaz/package/v/1.3.0
+🏷️ **Tag:** v1.3.0
+📅 **Released:** 2025-06-21 15:30:45 UTC
+```
 
 ## 🧠 Pro Tips
 
@@ -227,3 +282,4 @@ jobs:
 - **Environment-specific configs**: Use different input parameters for dev/staging/production environments
 - **Secret inheritance**: Always use `secrets: inherit` to pass repository secrets to reusable workflows
 - **Input validation**: The workflows include sensible defaults, so you only need to specify inputs you want to override
+- **Tuesday releases**: These workflows are optimized for the bi-weekly Tuesday release schedule with proper caching, performance optimization, and comprehensive documentation

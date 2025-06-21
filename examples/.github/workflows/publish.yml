@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: write         # Required for pushing version bumps and tags
+  packages: write         # Required for publishing packages  
+  pull-requests: read     # Required for reading PR information
+
 jobs:
   publish:
     uses: Plyaz-Official/devtools/.github/workflows/publish.yml@main

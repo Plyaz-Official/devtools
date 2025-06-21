@@ -6,7 +6,4 @@ on:
 jobs:
   build-deploy:
     uses: Plyaz-Official/devtools/.github/workflows/deploy.yml@main
-    with:
-      node_version: '20.x'
-      skip_type_check: true
     secrets: inherit
