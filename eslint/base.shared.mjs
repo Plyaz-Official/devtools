@@ -28,40 +28,40 @@ const EnvironmentDetectors = {
    */
   isNodeEnvironment(packageJson = {}) {
     // Check package.json indicators
-    const hasNodeDeps = packageJson.dependencies && (
-      packageJson.dependencies['@nestjs/core'] ||
-      packageJson.dependencies['express'] ||
-      packageJson.dependencies['fastify'] ||
-      packageJson.dependencies['node:fs'] ||
-      packageJson.dependencies['fs-extra']
-    );
-    
-    const hasNodeDevDeps = packageJson.devDependencies && (
-      packageJson.devDependencies['@types/node'] ||
-      packageJson.devDependencies['nodemon']
-    );
+    const hasNodeDeps =
+      packageJson.dependencies &&
+      (packageJson.dependencies['@nestjs/core'] ||
+        packageJson.dependencies['express'] ||
+        packageJson.dependencies['fastify'] ||
+        packageJson.dependencies['node:fs'] ||
+        packageJson.dependencies['fs-extra']);
 
-    return packageJson.type === 'module' || 
-           hasNodeDeps || 
-           hasNodeDevDeps ||
-           packageJson.main?.includes('dist/') ||
-           packageJson.scripts?.start?.includes('node');
+    const hasNodeDevDeps =
+      packageJson.devDependencies &&
+      (packageJson.devDependencies['@types/node'] || packageJson.devDependencies['nodemon']);
+
+    return (
+      packageJson.type === 'module' ||
+      hasNodeDeps ||
+      hasNodeDevDeps ||
+      packageJson.main?.includes('dist/') ||
+      packageJson.scripts?.start?.includes('node')
+    );
   },
 
   /**
    * Detect if current package/service uses React
    */
   isReactEnvironment(packageJson = {}) {
-    const hasReactDeps = packageJson.dependencies && (
-      packageJson.dependencies['react'] ||
-      packageJson.dependencies['@types/react'] ||
-      packageJson.dependencies['next']
-    );
+    const hasReactDeps =
+      packageJson.dependencies &&
+      (packageJson.dependencies['react'] ||
+        packageJson.dependencies['@types/react'] ||
+        packageJson.dependencies['next']);
 
-    const hasReactDevDeps = packageJson.devDependencies && (
-      packageJson.devDependencies['react'] ||
-      packageJson.devDependencies['@types/react']
-    );
+    const hasReactDevDeps =
+      packageJson.devDependencies &&
+      (packageJson.devDependencies['react'] || packageJson.devDependencies['@types/react']);
 
     return hasReactDeps || hasReactDevDeps;
   },
@@ -70,18 +70,18 @@ const EnvironmentDetectors = {
    * Detect if current package uses Tailwind
    */
   isTailwindEnvironment(packageJson = {}) {
-    const hasTailwindDeps = packageJson.dependencies && (
-      packageJson.dependencies['tailwindcss'] ||
-      packageJson.dependencies['@tailwindcss/typography']
-    );
+    const hasTailwindDeps =
+      packageJson.dependencies &&
+      (packageJson.dependencies['tailwindcss'] ||
+        packageJson.dependencies['@tailwindcss/typography']);
 
-    const hasTailwindDevDeps = packageJson.devDependencies && (
-      packageJson.devDependencies['tailwindcss'] ||
-      packageJson.devDependencies['@tailwindcss/typography']
-    );
+    const hasTailwindDevDeps =
+      packageJson.devDependencies &&
+      (packageJson.devDependencies['tailwindcss'] ||
+        packageJson.devDependencies['@tailwindcss/typography']);
 
     return hasTailwindDeps || hasTailwindDevDeps;
-  }
+  },
 };
 
 /**
@@ -92,7 +92,7 @@ const EnvironmentDetectors = {
 export function createBaseConfig({
   tsconfigDir = process.cwd(),
   enableReact = null, // null = auto-detect
-  enableNode = null,  // null = auto-detect
+  enableNode = null, // null = auto-detect
   enableTailwind = null, // null = auto-detect
   enablePrettier = true,
   packageType = 'utility', // 'utility' | 'ui' | 'types' | 'constants'
@@ -104,11 +104,11 @@ export function createBaseConfig({
   reactFilePatterns = ['**/*.{jsx,tsx}'], // Default: JSX/TSX files if React detected
   tailwindFilePatterns = ['**/*.{jsx,tsx}'], // Default: JSX/TSX files if Tailwind detected
 } = {}) {
-  
   // Auto-detect environments if not explicitly set
   const detectedNode = enableNode ?? EnvironmentDetectors.isNodeEnvironment(packageJson);
   const detectedReact = enableReact ?? EnvironmentDetectors.isReactEnvironment(packageJson);
-  const detectedTailwind = enableTailwind ?? EnvironmentDetectors.isTailwindEnvironment(packageJson);
+  const detectedTailwind =
+    enableTailwind ?? EnvironmentDetectors.isTailwindEnvironment(packageJson);
 
   const configs = [
     // Ignore patterns
