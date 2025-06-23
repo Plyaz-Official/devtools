@@ -1,6 +1,7 @@
 import { defineConfig } from 'eslint/config';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import typescriptEslint from 'typescript-eslint';
 
 // Plugin imports
 import reactPlugin from 'eslint-plugin-react';
@@ -14,6 +15,7 @@ import importPlugin from 'eslint-plugin-import';
 // Universal system imports
 import {
   createPluginConfig,
+  createTypeScriptConfig,
   createNamingConventionsConfig,
   createWeb3Config,
   createReactConfig,
@@ -67,8 +69,9 @@ export function createBaseConfig({
       ignores: COMMON_IGNORE_PATTERNS,
     },
 
-    // Base JS and TypeScript (always enabled)
     js.configs.recommended,
+    ...typescriptEslint.configs.recommended,
+    createTypeScriptConfig({ tsconfigDir }),
 
     // Additional configs from user
     ...additionalConfigs,
