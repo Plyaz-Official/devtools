@@ -269,6 +269,7 @@ export const COMMON_IGNORE_PATTERNS = [
   '**/*.scss',
   '**/*.sass',
   '**/*.less',
+  '**/*.ico',
   '**/.next/**',
   '**/public/**',
   '**/.vercel/**',

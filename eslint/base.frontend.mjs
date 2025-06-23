@@ -40,7 +40,7 @@ export function createBaseConfig({
   enableStorybook = true,
   enableTailwind = true,
   enablePrettier = true,
-  enableImport = true, // ✅ Add import plugin control
+  enableImport = true,
 
   // Tailwind specific
   cssFilePath = 'src/global.css',
@@ -107,8 +107,8 @@ export function createBaseConfig({
     );
   }
 
-  // React ecosystem (conditional)
-  if (enableReact) {
+  // React ecosystem (conditional - skip if Next.js is enabled)
+  if (enableReact && !enableNextjs) {
     configs.push(
       createReactConfig(reactPlugin, 'react', {
         files: ['**/*.{jsx,tsx}'],
@@ -130,6 +130,7 @@ export function createBaseConfig({
     );
   }
 
+  // React hooks (works with both standalone React and Next.js)
   if (enableReactHooks && enableReact) {
     configs.push(
       createPluginConfig(reactHooksPlugin, 'react-hooks', {
@@ -138,7 +139,8 @@ export function createBaseConfig({
     );
   }
 
-  if (enableReactRefresh && enableReact) {
+  // React refresh (only for non-Next.js React setups)
+  if (enableReactRefresh && enableReact && !enableNextjs) {
     configs.push(
       createPluginConfig(reactRefreshPlugin, 'react-refresh', {
         files: ['**/*.{jsx,tsx}'],
@@ -146,6 +148,7 @@ export function createBaseConfig({
     );
   }
 
+  // JSX A11y (works with both standalone React and Next.js)
   if (enableJsxA11y && enableReact) {
     configs.push(
       createPluginConfig(jsxA11yPlugin, 'jsx-a11y', {
@@ -181,7 +184,7 @@ export function createBaseConfig({
         name: 'plyaz/storybook-overrides',
         files: ['**/*.stories.{js,jsx,ts,tsx}'],
         rules: {
-          ...(enableImport && { 'import/no-default-export': 'off' }), // ✅ Conditional check
+          ...(enableImport && { 'import/no-default-export': 'off' }),
         },
       }
     );
@@ -325,27 +328,28 @@ export function createBaseConfig({
  * But you can still use createBaseConfig for full flexibility!
  */
 export const presets = {
-  // Full Next.js stack
   nextjs: (options = {}) =>
     createBaseConfig({
       enableNextjs: true,
       enableReact: true,
+      enableReactRefresh: false,
       enableStorybook: true,
       enableTailwind: true,
       enablePrettier: true,
-      enableImport: true, // ✅ Enable import by default
+      enableImport: true,
       ...options,
     }),
 
-  // Vite + React stack
+  // Vite + React stack - uses standalone React plugins
   viteReact: (options = {}) =>
     createBaseConfig({
       enableNextjs: false,
       enableReact: true,
+      enableReactRefresh: true,
       enableStorybook: true,
       enableTailwind: true,
       enablePrettier: true,
-      enableImport: true, // ✅ Enable import by default
+      enableImport: true,
       ...options,
     }),
 
@@ -354,10 +358,11 @@ export const presets = {
     createBaseConfig({
       enableNextjs: false,
       enableReact: true,
+      enableReactRefresh: true,
       enableStorybook: false,
       enableTailwind: false,
       enablePrettier: true,
-      enableImport: true, // ✅ Enable import by default
+      enableImport: true,
       ...options,
     }),
 
@@ -369,7 +374,7 @@ export const presets = {
       enableStorybook: false,
       enableTailwind: false,
       enablePrettier: true,
-      enableImport: true, // ✅ Enable import by default
+      enableImport: true,
       ...options,
     }),
 };
