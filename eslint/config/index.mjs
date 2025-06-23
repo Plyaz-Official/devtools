@@ -307,7 +307,7 @@ export function createTypeScriptConfig({ tsconfigDir = process.cwd() } = {}) {
     languageOptions: {
       parser: typescriptEslint.parser,
       parserOptions: {
-        // project: true,
+        project: true,
         tsconfigRootDir: tsconfigDir,
       },
     },

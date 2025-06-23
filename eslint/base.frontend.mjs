@@ -14,7 +14,6 @@ import importPlugin from 'eslint-plugin-import';
 // Universal system imports
 import {
   createPluginConfig,
-  createTypeScriptConfig,
   createNamingConventionsConfig,
   createWeb3Config,
   createReactConfig,
@@ -70,7 +69,6 @@ export function createBaseConfig({
 
     // Base JS and TypeScript (always enabled)
     js.configs.recommended,
-    createTypeScriptConfig({ tsconfigDir }),
 
     // Additional configs from user
     ...additionalConfigs,

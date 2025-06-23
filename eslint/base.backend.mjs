@@ -10,7 +10,6 @@ import nodePlugin from 'eslint-plugin-n';
 // Universal system imports
 import {
   createPluginConfig,
-  createTypeScriptConfig,
   createNamingConventionsConfig,
   createWeb3Config,
   createCommonOverrides,
@@ -43,7 +42,6 @@ export function createBaseConfig({
 
     // Base JS and TypeScript
     js.configs.recommended,
-    createTypeScriptConfig({ tsconfigDir }),
 
     // Enhanced TypeScript for backend
     {
