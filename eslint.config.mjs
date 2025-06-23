@@ -7,4 +7,6 @@ const __dirname = path.dirname(__filename);
 
 export default createBaseConfig({
   tsconfigDir: __dirname,
+  packageType: 'utility',
+  enableNode: true,
 });
