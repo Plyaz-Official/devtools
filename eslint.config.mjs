@@ -1,4 +1,4 @@
-import { createBaseConfig } from './eslint/base.mjs';
+import { createBaseConfig } from './eslint/base.backend.mjs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
