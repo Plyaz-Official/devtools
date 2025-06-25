@@ -1,4 +1,3 @@
-// eslint/backend.mjs - Backend configuration using universal system
 import { defineConfig } from 'eslint/config';
 import js from '@eslint/js';
 import typescriptEslint from 'typescript-eslint';
@@ -21,7 +20,6 @@ import {
  * Uses universal plugin system to handle API inconsistencies
  */
 export function createBaseConfig({
-  tsconfigDir = process.cwd(),
   enableNestjs = true,
   enableNodejs = true,
   enablePrettier = true,

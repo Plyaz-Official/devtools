@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import typescriptEslint from 'typescript-eslint';
+import process from 'node:process'
 
 /**
  * Universal helper to extract recommended rules from any plugin
@@ -441,7 +442,7 @@ export function createNamingConventionsConfig() {
         {
           selector: 'variable',
           modifiers: ['const'],
-          format: ['UPPER_CASE'],
+          format: ['UPPER_CASE', 'PascalCase'],
           filter: {
             regex: '^[A-Z][A-Z0-9_]*',
             match: true,

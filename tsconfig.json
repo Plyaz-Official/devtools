@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": ".",
-    "allowJs": false
+    "allowJs": false,
+    "moduleResolution": "bundler"
   },
   "include": [
     "configs/**/*.ts"

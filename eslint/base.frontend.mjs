@@ -11,6 +11,7 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import tailwindcssPlugin from 'eslint-plugin-better-tailwindcss';
 import storybookPlugin from 'eslint-plugin-storybook';
 import importPlugin from 'eslint-plugin-import';
+import process from 'node:process'
 
 // Universal system imports
 import {

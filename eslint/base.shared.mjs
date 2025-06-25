@@ -6,6 +6,7 @@ import reactPlugin from 'eslint-plugin-react';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import tailwindcssPlugin from 'eslint-plugin-better-tailwindcss';
 import nodePlugin from 'eslint-plugin-n';
+import process from 'node:process';
 
 // Universal system imports
 import {
