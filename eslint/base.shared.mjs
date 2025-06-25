@@ -12,7 +12,6 @@ import process from 'node:process';
 import {
   createPluginConfig,
   createSharedPackageTypeScriptConfig,
-  createNamingConventionsConfig,
   createWeb3Config,
   createReactConfig,
   createCommonOverrides,
@@ -131,9 +130,6 @@ export function createBaseConfig({
 
     // Security and Web3 rules (important for all shared packages)
     createWeb3Config(),
-
-    // Naming conventions
-    createNamingConventionsConfig(),
 
     // Shared package base rules
     {
