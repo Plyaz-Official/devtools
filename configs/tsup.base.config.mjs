@@ -293,7 +293,7 @@ export const createIsomorphicConfig = options => {
       'wagmi',
 
       // Include any additional externals
-      ...(options.external || []),
+      ...(options?.external || []),
     ],
     esbuildOptions(opts, context) {
       opts.jsx = 'automatic';
