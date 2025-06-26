@@ -390,6 +390,13 @@ export function createNamingConventionsConfig() {
     rules: {
       '@typescript-eslint/naming-convention': [
         'error',
+        // Allow Tailwind-style keys like '2xl', '4xl' in objects
+        {
+          selector: 'objectLiteralProperty',
+          modifiers: ['requiresQuotes'],
+          format: null,
+        },
+
         // Interfaces - PascalCase, no I prefix
         {
           selector: 'interface',
