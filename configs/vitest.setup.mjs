@@ -90,6 +90,9 @@ beforeAll(() => {
   }));
 });
 
+// Mock fs
+vi.mock('fs');
+
 // Cleanup after each test
 afterEach(() => {
   vi.clearAllMocks();
