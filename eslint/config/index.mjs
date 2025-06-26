@@ -373,9 +373,6 @@ export function createSharedPackageTypeScriptConfig({ tsconfigDir = process.cwd(
         },
       ],
       '@typescript-eslint/explicit-module-boundary-types': 'error',
-
-      // Naming conventions
-      ...createNamingConventionsConfig().rules,
     },
   };
 }
