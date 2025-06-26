@@ -390,6 +390,13 @@ export function createNamingConventionsConfig() {
     rules: {
       '@typescript-eslint/naming-convention': [
         'error',
+        // Allow Tailwind-style keys like '2xl', '4xl' in objects
+        {
+          selector: 'objectLiteralProperty',
+          modifiers: ['requiresQuotes'],
+          format: null,
+        },
+
         // Interfaces - PascalCase, no I prefix
         {
           selector: 'interface',
@@ -443,8 +450,7 @@ export function createNamingConventionsConfig() {
           selector: 'variable',
           modifiers: ['const'],
           // Ensures this rule doesn't apply to functions, which should be PascalCase if components
-          types: ['string', 'number', 'boolean', 'array', 'object', null],
-          format: ['UPPER_CASE'],
+          format: ['UPPER_CASE', 'PascalCase'],
           filter: {
             regex: '^[A-Z][A-Z0-9_]*$',
             match: true,
