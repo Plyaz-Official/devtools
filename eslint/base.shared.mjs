@@ -134,6 +134,7 @@ export function createBaseConfig({
 
     // Naming conventions
     createNamingConventionsConfig(),
+
     // Shared package base rules
     {
       name: 'plyaz/shared-package-base',
