@@ -445,9 +445,11 @@ export function createNamingConventionsConfig() {
         {
           selector: 'variable',
           modifiers: ['const'],
-          format: ['UPPER_CASE', 'PascalCase'],
+          // Ensures this rule doesn't apply to functions, which should be PascalCase if components
+          types: ['string', 'number', 'boolean', 'array', 'object', null],
+          format: ['UPPER_CASE'],
           filter: {
-            regex: '^[A-Z][A-Z0-9_]*',
+            regex: '^[A-Z][A-Z0-9_]*$',
             match: true,
           },
         },
