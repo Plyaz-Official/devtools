@@ -78,7 +78,7 @@ export const createVitestConfig = rootDir => {
       alias: {
         '@': resolve(rootDir, './src'),
         '~': resolve(rootDir, './src'),
-        tests: resolve(rootDir, './tests'),
+        'tests': resolve(rootDir, './tests'),
       },
     },
 
