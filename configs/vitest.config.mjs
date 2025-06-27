@@ -29,12 +29,10 @@ export const createVitestConfig = rootDir => {
         exclude: [
           'node_modules/',
           'dist/',
-          'coverage/',
           'tests/',
           '**/*.d.ts',
           '**/*.config.*',
           '**/coverage/**',
-          '**/*.d.ts',
           '**/*.test.{ts,tsx}',
           '**/*.spec.{ts,tsx}',
           '**/index.ts', // Usually just exports
