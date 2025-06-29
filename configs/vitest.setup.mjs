@@ -74,7 +74,24 @@ beforeAll(() => {
       randomUUID: vi.fn(() => 'test-uuid'),
     };
   }
+
+  // Mock next/server
+  vi.mock('next/server', () => ({
+    NextResponse: {
+      next: () => ({}),
+      rewrite: () => ({}),
+      redirect: () => ({}),
+    },
+  }));
+
+  // Mock glob
+  vi.mock('glob', () => ({
+    sync: vi.fn(),
+  }));
 });
+
+// Mock fs
+vi.mock('fs');
 
 // Cleanup after each test
 afterEach(() => {
