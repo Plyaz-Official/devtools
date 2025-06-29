@@ -83,12 +83,11 @@ beforeAll(() => {
       redirect: () => ({}),
     },
   }));
-
-  // Mock glob
-  vi.mock('glob', () => ({
-    sync: vi.fn(),
-  }));
 });
+// Mock glob
+vi.mock('glob', () => ({
+  sync: vi.fn(),
+}));
 
 // Mock fs
 vi.mock('fs');
