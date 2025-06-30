@@ -471,7 +471,7 @@ export function createNamingConventionsConfig() {
         {
           selector: 'variable',
           types: ['array', 'boolean', 'string', 'number'],
-          format: ['camelCase'],
+          format: ['camelCase', 'UPPER_CASE'],
         },
 
         // Methods - camelCase
