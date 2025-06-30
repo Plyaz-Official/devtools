@@ -434,38 +434,44 @@ export function createNamingConventionsConfig() {
         },
 
         // 🎯 SMART VARIABLE NAMING - Context Aware
-        // Regular variables - camelCase
+        // ✅ React Component variables (functions assigned to PascalCase, like `const MyComponent = () => {}`)
         {
           selector: 'variable',
-          format: ['camelCase'],
+          types: ['function'],
+          format: ['PascalCase'],
           filter: {
-            regex: '^[a-z]', // Starts with lowercase = regular variable
+            regex: '^[A-Z]', // Matches variables starting with an uppercase letter
             match: true,
           },
         },
 
-        // 🎯 CONST VARIABLES - Smart detection using patterns
-        // True constants (SCREAMING_SNAKE_CASE pattern) - UPPER_CASE
-        {
-          selector: 'variable',
-          modifiers: ['const'],
-          // Ensures this rule doesn't apply to functions, which should be PascalCase if components
-          format: ['UPPER_CASE', 'PascalCase'],
-          filter: {
-            regex: '^[A-Z][A-Z0-9_]*$',
-            match: true,
-          },
-        },
-
-        // React Hooks - camelCase with 'use' prefix
+        // ✅ Regular function variables (e.g., `const calculateTotal = () => {}`)
         {
           selector: 'variable',
           types: ['function'],
           format: ['camelCase'],
           filter: {
-            regex: '^use[A-Z]', // Hook pattern
+            regex: '^[a-z]', // Matches variables starting with a lowercase letter
             match: true,
           },
+        },
+
+        // ✅ React Hooks (e.g., `const useFeature = () => {}`) — must follow `useX` camelCase format
+        {
+          selector: 'variable',
+          types: ['function'],
+          format: ['camelCase'],
+          filter: {
+            regex: '^use[A-Z]', // Matches variables starting with `use` followed by uppercase
+            match: true,
+          },
+        },
+
+        // ✅ Regular non-function variables (e.g., arrays, booleans, strings, numbers)
+        {
+          selector: 'variable',
+          types: ['array', 'boolean', 'string', 'number'],
+          format: ['camelCase', 'UPPER_CASE'],
         },
 
         // Methods - camelCase
