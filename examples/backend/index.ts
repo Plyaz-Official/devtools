@@ -2,7 +2,7 @@
 
 import { Injectable } from '@nestjs/common';
 
-const ratio = 0.1; // Adjustable ratio for price increase based on trading volume.
+const RATIO = 0.1; // Adjustable ratio for price increase based on trading volume.
 
 /**
  * Service for calculating athlete token prices.
@@ -19,7 +19,7 @@ export class TokenPriceService {
    */
   public calculateTokenPrice(currentPrice: number, volume: number, marketCap: number): number {
     const volumeRatio = volume / marketCap;
-    const priceMultiplier = 1 + volumeRatio * ratio;
+    const priceMultiplier = 1 + volumeRatio * RATIO;
 
     return currentPrice * priceMultiplier;
   }
