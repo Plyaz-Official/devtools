@@ -90,9 +90,6 @@ export function createBaseConfig({
             {
               groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
               'newlines-between': 'always',
-              alphabetize: {
-                caseInsensitive: true,
-              },
             },
           ],
           'import/no-unresolved': 'off', // Handled by TypeScript
