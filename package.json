@@ -1,6 +1,6 @@
 {
   "name": "@plyaz/devtools",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "type": "module",
   "description": "Internal development tools and utilities for the Plyaz ecosystem, including debugging helpers, shared configs, and dev-time enhancements.",
   "main": "index.js",
