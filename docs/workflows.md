@@ -202,6 +202,8 @@ jobs:
       audit_level: 'high'                    # Only fail on high/critical vulnerabilities
       dependency_review_severity: 'high'     # Higher threshold for dependency review
       comment_summary: 'on-failure'          # Only comment on PR if issues found
+      dependency_review: true                # Skip dependecy review
+      skip_osv_scan: true                    # Skip OSV review
     secrets: inherit
 ```
 
@@ -233,6 +235,7 @@ jobs:
 | `dependency_review_severity` | string | `'moderate'` | Dependency review fail threshold |
 | `comment_summary` | string | `'always'` | When to post PR comments (always, on-failure, never) |
 | `skip_osv_scan` | boolean | `false` | Skip Google OSV vulnerability scanning |
+| `dependency_review` | boolean | `false` | Skip Github Dependecy Review scanning |
 
 ### Team Workflow
 
