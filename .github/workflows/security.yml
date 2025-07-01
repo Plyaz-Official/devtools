@@ -48,6 +48,11 @@ on:
         required: false
         type: boolean
         default: false
+      dependency_review:
+        description: 'Skip dependency review step'
+        required: false
+        type: boolean
+        default: false
 
 # Permissions are inherited from calling workflow
 # Calling workflow must have:
@@ -62,7 +67,7 @@ jobs:
   # 🔍 GitHub Dependency Review (Pull Requests Only)
   # --------------------------------------
   dependency-review:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && ${{ inputs.dependency_review != true }}
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
