@@ -67,7 +67,7 @@ jobs:
   # 🔍 GitHub Dependency Review (Pull Requests Only)
   # --------------------------------------
   dependency-review:
-    if: ${{ github.event_name == 'pull_request' && inputs.dependency_review != 'true' }}
+    if: ${{ github.event_name == 'pull_request' && inputs.dependency_review != true }}
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout repository'
