@@ -3,20 +3,24 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, PluginOption } from 'vite';
-import visualizer from 'rollup-plugin-visualizer';
+import { visualizer } from 'rollup-plugin-visualizer';
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(),visualizer({
-    open: true,
-    gzipSize: true,
-    brotliSize: true,
-    filename: "performance/reports/bundle-stats.html",
-    exclude: {
-        bundle: "storybook-static",
+  plugins: [
+    react(),
+    tailwindcss(),
+    visualizer({
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+      filename: 'performance/reports/bundle-stats.html',
+      exclude: {
+        bundle: 'storybook-static',
       },
-    template: "treemap",
-    sourcemap: true,
-  }) as PluginOption],
+      template: 'treemap',
+      sourcemap: true,
+    }) as PluginOption,
+  ],
 
   build: {
     rollupOptions: {
