@@ -195,6 +195,8 @@ export function createBaseConfig({
       createPluginConfig(tailwindcssPlugin, 'better-tailwindcss', {
         files: ['**/*.{jsx,tsx}'],
         configName: 'recommended',
+        
+       
       }),
       {
         name: 'plyaz/tailwind-settings',
@@ -203,7 +205,10 @@ export function createBaseConfig({
           'better-tailwindcss': {
             entryPoint: cssFilePath,
             tailwindConfig: tailwindConfig,
+            
           },
+          
+          
         },
       }
     );
