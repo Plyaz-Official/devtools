@@ -102,5 +102,8 @@
     "eslint-plugin-security": "^3.0.0",
     "eslint-plugin-unicorn": "^59.0.1",
     "eslint-plugin-unused-imports": "^4.0.0"
+  },
+  "dependencies": {
+    "happy-dom": "^18.0.1"
   }
 }
