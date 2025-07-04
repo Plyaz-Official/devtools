@@ -6,7 +6,7 @@ export const createVitestConfig = rootDir => {
   return defineConfig({
     test: {
       // Environment
-      environment: 'happy-dom',
+      environment: 'happy-dom', // faster and lighter
       globals: true,
       exclude: ['**/node_modules/**'],
 
