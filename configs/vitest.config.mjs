@@ -6,8 +6,9 @@ export const createVitestConfig = rootDir => {
   return defineConfig({
     test: {
       // Environment
-      environment: 'jsdom',
+      environment: 'happy-dom',
       globals: true,
+      exclude: ['**/node_modules/**'],
 
       // Environment variables
       env: {
@@ -18,7 +19,7 @@ export const createVitestConfig = rootDir => {
       setupFiles: ['./vitest.setup.ts'],
 
       // Test file patterns
-      include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
+      // include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
 
       coverage: {
         provider: 'istanbul',
@@ -74,12 +75,11 @@ export const createVitestConfig = rootDir => {
     },
 
     // Module resolution
-    resolve: {
-      alias: {
-        '@': resolve(rootDir, './src'),
-        '~': resolve(rootDir, './src'),
-        tests: resolve(rootDir, './tests'),
-      },
+
+    alias: {
+      '@': resolve(rootDir, './src'),
+      '~': resolve(rootDir, './src'),
+      tests: resolve(rootDir, './tests'),
     },
 
     // Define global variables for tests
