@@ -19,7 +19,7 @@ export const createVitestConfig = rootDir => {
       setupFiles: ['./vitest.setup.ts'],
 
       // Test file patterns
-      // include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
+      include: ['src/**/*.{test,spec}.{ts,tsx}', 'tests/**/*.{test,spec}.{ts,tsx}'],
 
       coverage: {
         provider: 'istanbul',
@@ -76,10 +76,10 @@ export const createVitestConfig = rootDir => {
 
     // Module resolution
 
-    alias: {
-      '@': resolve(rootDir, './src'),
-      '~': resolve(rootDir, './src'),
-      tests: resolve(rootDir, './tests'),
+      alias: {
+        '@': resolve(rootDir, './src'),
+        '~': resolve(rootDir, './src'),
+        tests: resolve(rootDir, './tests'),
     },
 
     // Define global variables for tests
