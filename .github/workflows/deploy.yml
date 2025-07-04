@@ -92,6 +92,11 @@ jobs:
       - name: Run tests
         run: pnpm test
 
+      # 🧹 Formatting (optional)
+      - name: Code formatting
+        if: ${{ !inputs.skip_format_check }}
+        run: pnpm format
+      
       # 🧹 Check code formatting (optional)
       - name: Check code formatting
         if: ${{ !inputs.skip_format_check }}
