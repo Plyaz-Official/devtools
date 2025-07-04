@@ -75,11 +75,12 @@ export const createVitestConfig = rootDir => {
     },
 
     // Module resolution
-
+    resolve: {
       alias: {
         '@': resolve(rootDir, './src'),
         '~': resolve(rootDir, './src'),
         tests: resolve(rootDir, './tests'),
+      },
     },
 
     // Define global variables for tests
