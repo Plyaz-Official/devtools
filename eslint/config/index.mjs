@@ -491,17 +491,6 @@ export function createNamingConventionsConfig() {
           leadingUnderscore: 'allow',
           trailingUnderscore: 'allow',
         },
-
-        // Boolean properties - Encourage good patterns but don't enforce
-        {
-          selector: 'property',
-          types: ['boolean'],
-          format: ['camelCase'],
-          custom: {
-            regex: '^(is|has|can|should|will|was|are|were)[A-Z]',
-            match: true, // Don't enforce, just suggest
-          },
-        },
       ],
     },
   };
