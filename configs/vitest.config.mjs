@@ -68,11 +68,16 @@ export const createVitestConfig = rootDir => {
       pool: 'threads',
       poolOptions: {
         threads: {
-          singleThread: false,
-          isolate: true,
+          maxThreads: 4,
+          minThreads: 1,
         },
       },
     },
+    // Add isolation to prevent memory leaks between tests
+    isolate: true,
+    // Clear mocks between tests
+    clearMocks: true,
+    restoreMocks: true,
 
     // Module resolution
     resolve: {
