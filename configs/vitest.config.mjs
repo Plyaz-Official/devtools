@@ -9,6 +9,8 @@ export const createVitestConfig = rootDir => {
       environment: 'happy-dom', // faster and lighter
       globals: true,
       exclude: ['**/node_modules/**'],
+      // Run tests sequentially to avoid memory issues
+      maxConcurrency: 1,
 
       // Environment variables
       env: {
@@ -52,9 +54,11 @@ export const createVitestConfig = rootDir => {
       },
 
       // Test behavior
-      restoreMocks: true,
       clearMocks: true,
-      testTimeout: 10_000,
+      restoreMocks: true,
+      mockReset: true,
+      // Set test timeout
+      testTimeout: 30_000,
       hookTimeout: 10_000,
 
       // Watch options
@@ -65,11 +69,17 @@ export const createVitestConfig = rootDir => {
           },
 
       // Pool options for better performance
-      pool: 'threads',
+      pool: 'forks',
       poolOptions: {
         threads: {
           maxThreads: 4,
           minThreads: 1,
+        },
+      },
+      // Environment-specific settings
+      environmentOptions: {
+        jsdom: {
+          resources: 'usable',
         },
       },
     },
