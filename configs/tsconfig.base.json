@@ -32,7 +32,6 @@
       "react-dom",
       "vitest",
       "vitest/config",
-      "vitest/vitest-environment",
       "node",
       "vitest/globals"
     ]
