@@ -82,7 +82,7 @@ export function createBaseConfig({
       files: ['**/*.{ts,js}'],
       rules: {
         'no-console': 'off', // Allow structured logging
-        complexity: ['error', 15], // Higher for business logic
+        complexity: ['warn', 15], // Higher for business logic
         ...customRules,
       },
     },

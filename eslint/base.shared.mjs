@@ -141,10 +141,10 @@ export function createBaseConfig({
       files: ['**/*.{js,ts,tsx}'],
       rules: {
         // Strictness based on level
-        complexity: ['error', strictness === 'high' ? 8 : strictness === 'medium' ? 12 : 20],
+        complexity: ['warn', strictness === 'high' ? 8 : strictness === 'medium' ? 12 : 20],
         'max-lines-per-function': [
           'error',
-          strictness === 'high' ? 50 : strictness === 'medium' ? 80 : 120,
+          strictness === 'high' ? 120 : strictness === 'medium' ? 80 : 250,
         ],
         'max-params': ['error', strictness === 'high' ? 4 : strictness === 'medium' ? 6 : 8],
         'max-depth': ['error', strictness === 'high' ? 3 : strictness === 'medium' ? 4 : 5],

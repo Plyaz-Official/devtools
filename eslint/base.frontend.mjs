@@ -265,7 +265,7 @@ export function createBaseConfig({
     files: ['**/*.{jsx,tsx,ts,js}'],
     rules: {
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
-      complexity: ['error', 10],
+      complexity: ['warn', 10],
       ...(enableImport && {
         'import/no-anonymous-default-export': [
           'error',

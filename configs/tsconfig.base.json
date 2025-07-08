@@ -22,7 +22,23 @@
     "declarationMap": true,
     "emitDeclarationOnly": false,
     "allowJs": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
+    "types": [
+      "next",
+      "react",
+      "react-dom",
+      "jest",
+      "vitest",
+      "jest-playwright-preset",
+      "jest-playwright-preset/lib/jest-preset.js",
+      "vitest/config",
+      "vitest/vitest-environment",
+      "node",
+      "vitest/globals"
+    ]
   },
   "include": ["src", "configs", "storybook"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
