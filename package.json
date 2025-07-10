@@ -24,7 +24,10 @@
     "audit:critical": "pnpm audit --audit-level critical",
     "audit:fix": "pnpm audit --fix",
     "audit:enhanced": "npx audit-ci --moderate",
-    "security:check": "pnpm audit:moderate && npx audit-ci --moderate"
+    "security:check": "pnpm audit:moderate && npx audit-ci --moderate",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "changeset publish"
   },
   "keywords": [],
   "author": "",
