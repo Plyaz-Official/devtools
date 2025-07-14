@@ -145,41 +145,32 @@ function generateReport(): void {
   // Optional removal
   if (allowExportedRemoval || unusedNonExported.length > 0) {
     console.log(chalk.yellow('\n🧹 Starting cleanup...'));
-    function removeDeclaration(name: string): void {
+    function removeFunction(sourceFile: SourceFile, name: string): void {
+      sourceFile.getFunction(name)?.remove();
+    }
+
+    function removeClass(sourceFile: SourceFile, name: string): void {
+      sourceFile.getClass(name)?.remove();
+    }
+
+    function removeArrowFunction(sourceFile: SourceFile, name: string): void {
+      sourceFile.getVariableDeclaration(name)?.remove();
+    }
+
+    function removeUnusedDeclaration(name: string): void {
       if (!allowExportedRemoval && declarations[name].isExported) return;
       const { filePath, kind } = declarations[name];
       const sourceFile = project.getSourceFile(filePath);
       if (!sourceFile) return;
 
-      switch (kind) {
-        case 'function':
-          removeFunction(sourceFile, name, filePath);
-          break;
-        case 'class':
-          removeClass(sourceFile, name, filePath);
-          break;
-        case 'arrow-function':
-          removeArrowFunction(sourceFile, name, filePath);
-          break;
-      }
-    }
+      if (kind === 'function') removeFunction(sourceFile, name);
+      else if (kind === 'class') removeClass(sourceFile, name);
+      else removeArrowFunction(sourceFile, name);
 
-    function removeFunction(sourceFile: SourceFile, name: string, filePath: string): void {
-      sourceFile.getFunction(name)?.remove();
       console.log(chalk.red(`❌ Removed ${name} from ${filePath}`));
     }
 
-    function removeClass(sourceFile: SourceFile, name: string, filePath: string): void {
-      sourceFile.getClass(name)?.remove();
-      console.log(chalk.red(`❌ Removed ${name} from ${filePath}`));
-    }
-
-    function removeArrowFunction(sourceFile: SourceFile, name: string, filePath: string): void {
-      sourceFile.getVariableDeclaration(name)?.remove();
-      console.log(chalk.red(`❌ Removed ${name} from ${filePath}`));
-    }
-
-    [...unusedExported, ...unusedNonExported].forEach(removeDeclaration);
+    [...unusedExported, ...unusedNonExported].forEach(removeUnusedDeclaration);
 
     project.saveSync();
   }
