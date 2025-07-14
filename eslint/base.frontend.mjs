@@ -313,6 +313,7 @@ export function createBaseConfig({
         'react/jsx-equals-spacing': 'off',
         'react/jsx-tag-spacing': 'off',
         'react/jsx-wrap-multilines': 'off',
+        'better-tailwindcss/multiline': 'off',
         'better-tailwindcss/sort-classes': 'off',
       },
     });
