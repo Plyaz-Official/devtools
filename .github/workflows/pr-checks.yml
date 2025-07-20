@@ -1,0 +1,68 @@
+name: Landing Page - PR Checks
+
+on:
+  push:
+    branches: [main, dev, staging]
+  pull_request:
+    branches: [main, dev, staging]
+
+jobs:
+  verify-checklist:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check PR Description for Checklist Items
+        uses: mheap/github-action-required-labels@v3
+        with:
+          mode: exactly
+          count: 0
+          labels: 'checklist incomplete'
+
+  code-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.4.x'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Lint check
+        run: pnpm lint
+
+      - name: TypeScript check
+        run: pnpm tsc --noEmit
+
+  test-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '22.4.x'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests with coverage
+        run: pnpm test:coverage
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(pnpm test:coverage:report | grep "All files" | awk '{print $4}' | sed 's/%//')
+          if (( $(echo "$COVERAGE < 90" | bc -l) )); then
+            echo "Test coverage is below 90% (actual: $COVERAGE%)"
+            exit 1
+          fi
