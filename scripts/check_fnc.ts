@@ -2,8 +2,21 @@ import { Project, SyntaxKind, type SourceFile } from 'ts-morph';
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import { showHelpAndExit } from '../utils/cli';
 
 const args = process.argv.slice(2);
+
+showHelpAndExit(
+  chalk.bold.cyan(`
+Usage: plyaz-check-fnc [options]
+
+Options:
+  --remove-exported   Also remove exported but unused functions/classes/arrow-functions
+  --report=<path>     Path to write the markdown report
+  --help              Show this help message
+`)
+);
+
 const reportPathArg = args.find(arg => arg.startsWith('--report='));
 const allowExportedRemoval = args.includes('--remove-exported');
 

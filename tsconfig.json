@@ -9,7 +9,8 @@
   "include": [
     "scripts/**/*.ts",
     "configs/**/*.ts",
-    "env/**/*.ts"
+    "env/**/*.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "dist",

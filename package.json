@@ -27,8 +27,20 @@
     "security:check": "pnpm audit:moderate && npx audit-ci --moderate",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish"
+    "release": "changeset publish",
+    "prepare": "node ./scripts/set-executable.js"
   },
+  "bin": {
+    "plyaz-check-types": "./scripts/check-types.ts",
+    "plyaz-check-fnc": "./scripts/check-fnc.ts",
+    "plyaz-check-deps": "./scripts/check-deps.ts",
+    "plyaz-dev-setup": "./scripts/dev-setup.sh",
+    "plyaz-link-all": "./scripts/link-all.sh",
+    "plyaz-move-types": "./scripts/move_types.ts"
+  },
+  "files": [
+    "scripts/"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",

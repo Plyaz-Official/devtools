@@ -3,6 +3,19 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import { glob } from 'glob';
+import chalk from 'chalk';
+import { showHelpAndExit } from '../utils/cli';
+
+showHelpAndExit(
+  chalk.bold.cyan(`
+Usage: plyaz-check-deps [options]
+
+Options:
+  --rewrite           Rewrite all dependency versions to the highest found
+  --report=<path>     Path to write the markdown report
+  --help              Show this help message
+`)
+);
 
 const root = process.cwd();
 const args = process.argv.slice(2);

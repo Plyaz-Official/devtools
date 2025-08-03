@@ -2,8 +2,21 @@ import { Project, SyntaxKind, type SourceFile } from 'ts-morph';
 import path from 'path';
 import fs from 'fs';
 import chalk from 'chalk';
+import { showHelpAndExit } from '../utils/cli';
 
 const args = process.argv.slice(2);
+
+showHelpAndExit(
+  chalk.bold.cyan(`
+Usage: plyaz-check-types [options]
+
+Options:
+  --remove            Remove unused exported types/interfaces
+  --report=<path>     Output markdown report to specified path
+  --help              Show this help message
+`)
+);
+
 const shouldRemove = args.includes('--remove');
 const reportPathArg = args.find(arg => arg.startsWith('--report='));
 const reportFilePath = reportPathArg?.split('=')[1];
