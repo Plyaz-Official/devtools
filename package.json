@@ -40,7 +40,15 @@
     "plyaz-set-executable": "./scripts/set-executable.ts"
   },
   "files": [
-    "scripts/"
+    "configs/",
+    "env/",
+    "eslint/",
+    "utils/",
+    "prettier/",
+    "plop/",
+    "scripts/",
+    "vscode",
+    ".github/"
   ],
   "keywords": [],
   "author": "",
