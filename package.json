@@ -27,8 +27,7 @@
     "security:check": "pnpm audit:moderate && npx audit-ci --moderate",
     "changeset": "changeset",
     "version-packages": "changeset version",
-    "release": "changeset publish",
-    "prepare": "node ./scripts/set-executable.js"
+    "release": "changeset publish"
   },
   "bin": {
     "plyaz-check-types": "./scripts/check-types.ts",
@@ -36,7 +35,9 @@
     "plyaz-check-deps": "./scripts/check-deps.ts",
     "plyaz-dev-setup": "./scripts/dev-setup.sh",
     "plyaz-link-all": "./scripts/link-all.sh",
-    "plyaz-move-types": "./scripts/move_types.ts"
+    "plyaz-move-types": "./scripts/move_types.ts",
+    "plyaz-move-constants": "./scripts/move_constants.ts",
+    "plyaz-set-executable": "./scripts/set-executable.ts"
   },
   "files": [
     "scripts/"
