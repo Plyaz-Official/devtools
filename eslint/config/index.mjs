@@ -523,7 +523,7 @@ export function createWeb3Config() {
       'no-magic-numbers': [
         'error',
         {
-          ignore: [-1, 0, 1, 2, 10, 100, 1000, 18, 1e18, 21000, 8, 6], // Web3 common values
+          ignore: [-1, 0, 1],
           ignoreArrayIndexes: true,
           ignoreDefaultValues: true,
           enforceConst: true,
