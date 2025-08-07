@@ -1,15 +1,27 @@
-name: Landing Page - PR Checks
+name: PR Checks
 
 on:
   push:
     branches: [main, dev, staging]
   pull_request:
     branches: [main, dev, staging]
+  workflow_call:
+    inputs:
+      node_version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '22.4.x'
+      pnpm_version:
+        description: 'pnpm version to use'
+        required: false
+        type: string
+        default: '8'
 
 jobs:
   verify-checklist:
-    runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -25,12 +37,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22.4.x'
+          node-version: ${{ inputs.node_version || '22.4.x' }}
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@${{ inputs.pnpm_version || '8' }}
 
       - name: Install dependencies
         run: pnpm install
@@ -46,12 +58,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22.4.x'
+          node-version: ${{ inputs.node_version || '22.4.x' }}
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -g pnpm@${{ inputs.pnpm_version || '8' }}
 
       - name: Install dependencies
         run: pnpm install
