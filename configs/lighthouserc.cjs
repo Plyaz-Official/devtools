@@ -4,7 +4,7 @@ module.exports =  {
   ci: {
     collect: {
       url: [process.env.LHCI_URL || "http://localhost:3000"], 
-      startServerCommand: process.env.LHCI_START || "npm run start",
+      startServerCommand: process.env.LHCI_START || undefined,
       numberOfRuns: 2,
       settings: {
         onlyCategories: [
