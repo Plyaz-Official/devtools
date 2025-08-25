@@ -1,0 +1,42 @@
+name: Deploy + Lighthouse
+
+on:
+   push:
+     branches: [main, dev, staging]
+   pull_request:
+     branches: [main, dev, staging]
+
+jobs:
+  # 1️⃣ Build + Deploy Job
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.4.x
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm build
+      - name: Deploy to Vercel
+        run: npx vercel --yes --token=${{ secrets.VERCEL_TOKEN }}
+
+
+  #  Lighthouse Job – waits for deployment_status.success
+  lighthouse:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.4.x
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - run: pnpm install @lhci/cli@0.15.x
+      - run: pnpm build
+      - name: Run Lighthouse
+        run: pnpm run lighthouse --collect.url=${{ github.event.deployment_status.target_url }}
