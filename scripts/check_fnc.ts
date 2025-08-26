@@ -4,7 +4,8 @@ import fs from 'fs';
 import chalk from 'chalk';
 import { showHelpAndExit } from '../utils/cli';
 
-const args = process.argv.slice(2);
+const START_FROM = 2;
+const args = process.argv.slice(START_FROM);
 
 showHelpAndExit(
   chalk.bold.cyan(`

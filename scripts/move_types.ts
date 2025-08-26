@@ -1,212 +1,246 @@
-/* eslint-disable max-depth */
-import { Project, SyntaxKind, Node, type SourceFile } from 'ts-morph';
 import path from 'path';
 import fs from 'fs';
-import { glob } from 'glob';
+import {
+  Project,
+  SourceFile,
+  InterfaceDeclaration,
+  TypeAliasDeclaration,
+  EnumDeclaration,
+  Node,
+  SyntaxKind,
+  ImportDeclarationStructure,
+} from 'ts-morph';
 import chalk from 'chalk';
 import { showHelpAndExit } from '../utils/cli';
 
-showHelpAndExit(
-  chalk.bold.cyan(`
-Usage: plyaz-move-types [directory] [options]
+function parseArgs(argv: string[]) {
+  const flags: Record<string, string | boolean> = {};
+  let folder: string | undefined;
 
-Description:
-  Moves exported type/interface/enum declarations to types.ts in each folder
-  and adds "import type { ... } from './types'" back to original files.
+  for (const arg of argv) {
+    if (arg.startsWith('--')) {
+      const [key, val] = arg.replace(/^--/, '').split('=');
+      flags[key] = val ?? true;
+    } else if (!folder) {
+      folder = arg;
+    }
+  }
+
+  return { folder, flags };
+}
+
+const { folder: rootPath, flags } = parseArgs(process.argv.slice(2));
+const reportPath = flags.report as string;
+const onlyExported = Boolean(flags['only-exported']);
+const dryRun = Boolean(flags['dry-run']);
+const force = Boolean(flags.force);
+const help = Boolean(flags.help);
+
+if (!rootPath || help) {
+  showHelpAndExit(
+    chalk.bold.cyan(`
+Usage: plyaz-move-types <folder> [options]
 
 Options:
-  --report=<path>     Write a markdown report to the specified file
-  --force             Overwrite conflicting declarations in types.ts
-  --dry-run           Simulate actions without writing any files
-  --help              Show this help message
-
-Example:
-  npx plyaz-move-types src/ --report=./internal-reports/move-types.md
+  --only-exported       Only move exported types/interfaces/enums
+  --report=<path>       Path to write markdown report
+  --dry-run             Simulate changes without modifying files
+  --force               Overwrite conflicting types in types.ts
+  --help                Show this help message
 `)
-);
-
-const args = process.argv.slice(2);
-const inputPath = args.find(a => !a.startsWith('--'));
-const reportArg = args.find(a => a.startsWith('--report='));
-const reportPath = reportArg?.split('=')[1];
-const dryRun = args.includes('--dry-run');
-const forceOverwrite = args.includes('--force');
-
-if (!inputPath) {
-  console.error(chalk.red('✘ Please provide a path to scan'));
-  throw new Error('✘ Please provide a path to scan');
+  );
 }
 
-const targetPath = path.resolve(inputPath);
 const project = new Project({ tsConfigFilePath: path.resolve('tsconfig.json') });
 
-const files = glob.sync(`${targetPath.replace(/\\/g, '/')}/**/*.{ts,tsx}`, {
-  ignore: ['**/types.ts', '**/*.d.ts'],
+const typeDeclarations: Record<string, { name: string; text: string; node: Node; kind: string }[]> =
+  {};
+
+project.getSourceFiles(`${rootPath}/**/*.ts`).forEach(sourceFile => {
+  const folder = path.dirname(sourceFile.getFilePath());
+  const declarations = getTypeDeclarations(sourceFile);
+  if (!declarations.length) return;
+  if (!typeDeclarations[folder]) typeDeclarations[folder] = [];
+  typeDeclarations[folder].push(...declarations);
 });
 
-if (files.length === 0) {
-  console.log(chalk.gray('No matching TS files found.'));
-  throw new Error('No matching TS files found.');
+function getTypeDeclarations(sourceFile: SourceFile) {
+  const decls: { name: string; text: string; node: Node; kind: string }[] = [];
+  sourceFile.forEachChild(stmt => {
+    if (
+      stmt instanceof InterfaceDeclaration ||
+      stmt instanceof TypeAliasDeclaration ||
+      stmt instanceof EnumDeclaration
+    ) {
+      const isExported = stmt.isExported();
+      if (onlyExported && !isExported) return;
+
+      const exportedText = isExported ? stmt.getText() : `export ${stmt.getText()}`;
+      const kind =
+        stmt instanceof InterfaceDeclaration
+          ? 'interface'
+          : stmt instanceof TypeAliasDeclaration
+            ? 'type'
+            : 'enum';
+
+      decls.push({ name: stmt.getName(), text: exportedText, node: stmt, kind });
+    }
+  });
+  return decls;
 }
 
-type DeclarationInfo = {
-  name: string;
-  text: string;
-  kind: 'type' | 'interface' | 'enum';
-  fromFile: string;
-};
+let movedTotal = 0;
+let interfaceCount = 0;
+let typeCount = 0;
+let enumCount = 0;
+const affectedFiles: { from: string; to: string; names: string[] }[] = [];
 
-const movedByFolder: Record<string, { [fileName: string]: DeclarationInfo[] }> = {};
-const affectedFiles: string[] = [];
-let totalMoved = 0;
-
-function getKind(node: Node): DeclarationInfo['kind'] | null {
-  if (Node.isTypeAliasDeclaration(node)) return 'type';
-  if (Node.isInterfaceDeclaration(node)) return 'interface';
-  if (Node.isEnumDeclaration(node)) return 'enum';
-  return null;
-}
-
-function parseExistingTypes(typesPath: string): SourceFile {
-  return fs.existsSync(typesPath)
-    ? project.addSourceFileAtPath(typesPath)
-    : project.createSourceFile(typesPath, '', { overwrite: true });
-}
-
-for (const filePath of files) {
-  const sourceFile = project.getSourceFile(filePath) ?? project.addSourceFileAtPath(filePath);
-  const statements = sourceFile.getStatements();
-
-  const toMove: DeclarationInfo[] = [];
-  const relativeFileName = path.basename(filePath);
-  const folder = path.dirname(filePath);
-
-  for (const stmt of statements) {
-    const kind = getKind(stmt);
-    if (!kind) continue;
-
-    const decl = stmt.asKindOrThrow(
-      kind === 'type'
-        ? SyntaxKind.TypeAliasDeclaration
-        : kind === 'interface'
-          ? SyntaxKind.InterfaceDeclaration
-          : SyntaxKind.EnumDeclaration
-    );
-
-    if (!decl.hasModifier(SyntaxKind.ExportKeyword)) continue;
-
-    const name = decl.getName?.();
-    if (!name) continue;
-
-    toMove.push({ name, text: decl.getText(), kind, fromFile: relativeFileName });
-    if (!dryRun) decl.remove();
-  }
-
-  if (toMove.length === 0) continue;
-
-  if (!movedByFolder[folder]) movedByFolder[folder] = {};
-  movedByFolder[folder][relativeFileName] = toMove;
-  affectedFiles.push(filePath);
-
-  if (!dryRun) {
-    sourceFile.addImportDeclaration({
-      isTypeOnly: true,
-      moduleSpecifier: './types',
-      namedImports: toMove.map(t => t.name),
-    });
-
-    sourceFile.saveSync();
-  }
-
-  totalMoved += toMove.length;
-
-  console.log(
-    chalk.green(
-      `${dryRun ? '🔎 Would move' : '✔ Moved'} ${toMove.length} from ${path.relative(process.cwd(), filePath)}:`
-    )
-  );
-  toMove.forEach(t => console.log(`  - ${t.name} (${t.kind})`));
-}
-
-const reportLines: string[] = [];
-
-for (const folder of Object.keys(movedByFolder).sort()) {
+for (const folder in typeDeclarations) {
   const typesPath = path.join(folder, 'types.ts');
-  const existingSource = parseExistingTypes(typesPath);
-  const allNewGroups = movedByFolder[folder];
-  const sortedFileNames = Object.keys(allNewGroups).sort((a, b) => a.localeCompare(b));
+  const existingText = fs.existsSync(typesPath) ? fs.readFileSync(typesPath, 'utf-8') : '';
+  const insertions: string[] = [];
 
-  let typesModified = false;
+  insertions.push(`// ========================================`);
+  insertions.push(`// ======== From: ${path.relative(process.cwd(), folder)} ========`);
+  insertions.push(`// ========================================\n`);
 
-  for (const fileName of sortedFileNames) {
-    const decls = allNewGroups[fileName];
-    const header = `// ========= From: ${fileName} =========`;
+  const seen = new Set<string>();
+  const importMap: Map<string, Set<string>> = new Map();
+  const namesMoved: string[] = [];
 
-    if (!existingSource.getFullText().includes(header)) {
-      if (!dryRun) existingSource.addStatements(`\n${header}\n`);
+  for (const { name, text, node, kind } of typeDeclarations[folder].sort((a, b) =>
+    a.name.localeCompare(b.name)
+  )) {
+    if (
+      existingText.includes(`interface ${name}`) ||
+      existingText.includes(`type ${name}`) ||
+      existingText.includes(`enum ${name}`)
+    ) {
+      if (!force) {
+        console.warn(chalk.yellow(`⚠ Type ${name} already exists in ${typesPath}`));
+        continue;
+      }
     }
 
-    for (const { name, text, kind } of decls) {
-      const existing =
-        kind === 'interface'
-          ? existingSource.getInterface(name)
-          : kind === 'enum'
-            ? existingSource.getEnum(name)
-            : existingSource.getTypeAlias(name);
+    const usedTypes = node.getDescendantsOfKind(SyntaxKind.Identifier).map(id => id.getText());
+    const sourceImports = node.getSourceFile().getImportDeclarations();
 
-      if (existing) {
-        const existingText = existing.getText().replace(/\s/g, '');
-        const newText = text.replace(/\s/g, '');
-        if (existingText === newText) {
-          continue; // identical, skip
-        } else if (!forceOverwrite) {
-          console.error(chalk.red(`❌ Conflict: ${name} (${kind}) already exists in ${typesPath}`));
-          throw new Error(`Use --force to overwrite`);
-        } else {
-          console.log(chalk.yellow(`⚠ Overwriting conflicting ${name} in ${typesPath}`));
-          if (!dryRun) existing.remove();
+    for (const importDecl of sourceImports) {
+      const namedImports = importDecl.getNamedImports();
+      const moduleSpecifier = importDecl.getModuleSpecifierValue();
+
+      for (const namedImport of namedImports) {
+        const importedName = namedImport.getName();
+        if (usedTypes.includes(importedName)) {
+          if (!importMap.has(moduleSpecifier)) {
+            importMap.set(moduleSpecifier, new Set());
+          }
+          importMap.get(moduleSpecifier)?.add(importedName);
+        }
+      }
+    }
+
+    seen.add(name);
+    namesMoved.push(name);
+    insertions.push(text + '\n');
+
+    movedTotal++;
+    if (kind === 'interface') interfaceCount++;
+    else if (kind === 'type') typeCount++;
+    else if (kind === 'enum') enumCount++;
+  }
+
+  const importStatements = Array.from(importMap.entries()).map(
+    ([mod, names]) => `import type { ${Array.from(names).sort().join(', ')} } from '${mod}';`
+  );
+
+  if (importStatements.length) {
+    insertions.unshift(...importStatements, '');
+  }
+
+  if (!dryRun && insertions.length > 0) {
+    fs.appendFileSync(typesPath, insertions.join('\n'));
+  }
+
+  if (insertions.length > 0) {
+    affectedFiles.push({ from: folder, to: typesPath, names: namesMoved });
+  }
+
+  for (const { name, node } of typeDeclarations[folder]) {
+    const sourceFile = node.getSourceFile();
+    const importPath = './types';
+    const existingImports = sourceFile
+      .getImportDeclarations()
+      .filter(i => i.getModuleSpecifierValue() === importPath);
+    const alreadyHas = existingImports.some(decl =>
+      decl.getNamedImports().some(imp => imp.getName() === name)
+    );
+
+    if (!alreadyHas) {
+      const importDecl =
+        existingImports[0] ?? sourceFile.addImportDeclaration({ moduleSpecifier: importPath });
+      importDecl.set({ isTypeOnly: true } as ImportDeclarationStructure);
+      importDecl.addNamedImport(name);
+    }
+
+    if (
+      Node.isInterfaceDeclaration(node) ||
+      Node.isTypeAliasDeclaration(node) ||
+      Node.isEnumDeclaration(node)
+    ) {
+      node.remove();
+    }
+
+    if (!dryRun) {
+      // Clean unused imports (if any were solely used in the removed types)
+      const usedIdentifiers = sourceFile
+        .getDescendantsOfKind(SyntaxKind.Identifier)
+        .map(id => id.getText());
+      const importDecls = sourceFile.getImportDeclarations();
+
+      for (const decl of importDecls) {
+        const namedImports = decl.getNamedImports();
+        const unused = namedImports.filter(i => !usedIdentifiers.includes(i.getName()));
+        unused.forEach(i => i.remove());
+
+        if (decl.getNamedImports().length === 0) {
+          decl.remove();
         }
       }
 
-      if (!dryRun) {
-        existingSource.addStatements(`\n${text}`);
-        typesModified = true;
-      }
+      sourceFile.saveSync();
     }
-
-    reportLines.push(`### ${path.relative(process.cwd(), path.join(folder, fileName))}`);
-    decls.forEach(d => {
-      reportLines.push(`- ${d.name} (${d.kind})`);
-    });
-    reportLines.push('');
-  }
-
-  if (typesModified && !dryRun) {
-    existingSource.saveSync();
   }
 }
 
-// === Final Report ===
-console.log('\n' + chalk.bold.cyan('📊 Summary Report'));
-console.log(chalk.cyan('------------------------'));
-console.log(`Affected files: ${chalk.yellow(affectedFiles.length)}`);
-console.log(`Types moved   : ${chalk.yellow(totalMoved)}${dryRun ? ' (dry-run)' : ''}\n`);
+console.log(chalk.green.bold(`\nSummary Report`));
+console.log(`Affected files: ${affectedFiles.length}`);
+console.log(`Types moved : ${movedTotal}`);
+console.log(`- Interfaces: ${interfaceCount}`);
+console.log(`- Types     : ${typeCount}`);
+console.log(`- Enums     : ${enumCount}`);
 
 if (reportPath) {
   const markdown = [
-    '# 📦 Type Migration Report',
+    `# Moved Types Report`,
     '',
-    `**Total types moved**: ${totalMoved}`,
     `**Affected files**: ${affectedFiles.length}`,
+    `**Types moved**: ${movedTotal}`,
+    `- Interfaces: ${interfaceCount}`,
+    `- Types: ${typeCount}`,
+    `- Enums: ${enumCount}`,
     '',
-    ...reportLines,
+    ...affectedFiles.map(f =>
+      [
+        `### \`${path.relative(process.cwd(), f.from)}\``,
+        `- ➕ ${f.names.length} types moved to \`${path.relative(process.cwd(), f.to)}\``,
+        ...f.names.map(n => `  - ${n}`),
+        '',
+      ].join('\n')
+    ),
   ].join('\n');
 
-  if (!dryRun) {
-    fs.mkdirSync(path.dirname(reportPath), { recursive: true });
-    fs.writeFileSync(reportPath, markdown, 'utf8');
-    console.log(`📝 Markdown report written to ${chalk.magenta(reportPath)}\n`);
-  } else {
-    console.log(chalk.gray(`📝 (Dry-run mode: markdown not written)`));
-  }
+  fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+  fs.writeFileSync(reportPath, markdown);
+  console.log(`\n📝 Markdown report written to ${chalk.magenta(reportPath)}`);
 }
