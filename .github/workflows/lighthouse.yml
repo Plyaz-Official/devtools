@@ -22,7 +22,19 @@ jobs:
       - run: pnpm build
       - name: Deploy to Vercel
         run: npx vercel --yes --token=${{ secrets.VERCEL_TOKEN }}
+            # 5️⃣ Get custom domain from Vercel
+      - name: Get Vercel Custom Domain
+        id: vercel_custom_domain
+        run: |
+          CUSTOM_DOMAIN=$(vercel domains ls --token ${{ secrets.VERCEL_TOKEN }} --json | jq -r '.[0].name')
+          echo "Using custom domain: https://$CUSTOM_DOMAIN"
+          echo "url=https://$CUSTOM_DOMAIN" >> $GITHUB_OUTPUT
 
+      # 6️⃣ Run Lighthouse CI on custom domain
+      - name: Run Lighthouse CI
+        run: |
+          npx lhci autorun \
+            --collect.url=${{ steps.vercel_custom_domain.outputs.url }}
 
   #  Lighthouse Job – waits for deployment_status.success
   lighthouse:
