@@ -7,7 +7,7 @@ on:
      branches: [main, dev, staging]
 
 jobs:
-  # 1️⃣ Build + Deploy Job
+  # Build + Deploy Job
   deploy:
     if: github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
