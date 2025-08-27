@@ -9,6 +9,7 @@ on:
 jobs:
   # 1️⃣ Build + Deploy Job
   deploy:
+    if: github.event.deployment_status.state == 'success'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +27,7 @@ jobs:
       - name: Get Vercel Custom Domain
         id: vercel_custom_domain
         run: |
-          CUSTOM_DOMAIN=$(vercel domains ls --token ${{ secrets.VERCEL_TOKEN }} --json | jq -r '.[0].name')
+          CUSTOM_DOMAIN=$(vercel domains ls --token ${{ secrets.VERCEL_TOKEN }})
           echo "Using custom domain: https://$CUSTOM_DOMAIN"
           echo "url=https://$CUSTOM_DOMAIN" >> $GITHUB_OUTPUT
 
