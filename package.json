@@ -1,6 +1,6 @@
 {
   "name": "@plyaz/devtools",
-  "version": "1.9.0",
+  "version": "1.9.5",
   "type": "module",
   "description": "Internal development tools and utilities for the Plyaz ecosystem, including debugging helpers, shared configs, and dev-time enhancements.",
   "main": "index.js",
@@ -30,16 +30,15 @@
     "release": "changeset publish"
   },
   "bin": {
-    "plyaz-check-types": "./scripts/check-types.ts",
-    "plyaz-check-fnc": "./scripts/check-fnc.ts",
-    "plyaz-check-deps": "./scripts/check-deps.ts",
+    "plyaz-check-types": "./dist/scripts/check_types.js",
+    "plyaz-check-fnc": "./dist/scripts/check_fnc.js",
+    "plyaz-check-deps": "./dist/scripts/check_dependencies_versions.js",
     "plyaz-dev-setup": "./scripts/dev-setup.sh",
     "plyaz-link-all": "./scripts/link-all.sh",
-    "plyaz-move-types": "./scripts/move_types.ts",
-    "plyaz-move-constants": "./scripts/move_constants.ts",
-    "plyaz-set-executable": "./scripts/set-executable.ts"
+    "plyaz-move-types": "./dist/scripts/move_types.js"
   },
   "files": [
+    "dist/",
     "configs/",
     "env/",
     "eslint/",

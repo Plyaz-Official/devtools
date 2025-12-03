@@ -349,7 +349,6 @@ export const createTypesConfig = (options = {}) => {
     dts: {
       only: true, // Only generate .d.ts files
     },
-    format: ['esm'], // Types don't need dual format
     external: [], // Types don't have runtime dependencies
     ...options,
   });

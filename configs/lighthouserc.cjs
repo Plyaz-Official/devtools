@@ -1,21 +1,14 @@
 /* eslint-disable no-undef */
 
-module.exports =  {
+module.exports = {
   ci: {
     collect: {
-      url: [process.env.LHCI_URL || "http://localhost:3000"], 
+      url: [process.env.LHCI_URL || 'http://localhost:3000'],
       startServerCommand: process.env.LHCI_START || undefined,
       settings: {
-        onlyCategories: [
-          'performance',
-          'accessibility',
-          'best-practices',
-          'seo',
-        ]
-      ,
-    chromeFlags: '--no-sandbox',
-    }
-
+        onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
+        chromeFlags: '--no-sandbox',
+      },
     },
     assert: {
       assertions: {
@@ -26,7 +19,7 @@ module.exports =  {
       },
     },
     upload: {
-      target: "temporary-public-storage",
+      target: 'temporary-public-storage',
     },
   },
 };
