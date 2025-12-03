@@ -1,0 +1,55 @@
+name: Deploy + Lighthouse
+
+on:
+   push:
+     branches: [main, dev, staging]
+   pull_request:
+     branches: [main, dev, staging]
+
+jobs:
+  # Build + Deploy Job
+  deploy:
+    if: github.event.deployment_status.state == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.4.x
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - run: pnpm install
+      - run: pnpm build
+      - name: Deploy to Vercel
+        run: npx vercel --yes --token=${{ secrets.VERCEL_TOKEN }}
+            # 5️⃣ Get custom domain from Vercel
+      - name: Get Vercel Custom Domain
+        id: vercel_custom_domain
+        run: |
+          CUSTOM_DOMAIN=$(vercel domains ls --token ${{ secrets.VERCEL_TOKEN }})
+          echo "Using custom domain: https://$CUSTOM_DOMAIN"
+          echo "url=https://$CUSTOM_DOMAIN" >> $GITHUB_OUTPUT
+
+      # 6️⃣ Run Lighthouse CI on custom domain
+      - name: Run Lighthouse CI
+        run: |
+          npx lhci autorun \
+            --collect.url=${{ steps.vercel_custom_domain.outputs.url }}
+
+  #  Lighthouse Job – waits for deployment_status.success
+  lighthouse:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.4.x
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - run: pnpm install @lhci/cli@0.15.x
+      - run: pnpm build
+      - name: Run Lighthouse
+        run: pnpm run lighthouse --collect.url=${{ github.event.deployment_status.target_url }}

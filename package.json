@@ -132,5 +132,9 @@
   },
   "dependencies": {
     "happy-dom": "^18.0.1"
+  },
+  "engines": {
+    "node": ">=23.0.0",
+    "pnpm": ">=8.10.0"
   }
 }
