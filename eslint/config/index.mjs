@@ -356,6 +356,8 @@ export function createSharedPackageTypeScriptConfig({ tsconfigDir = process.cwd(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
+      'no-redeclare': 'off',
+      '@typescript-eslint/no-redeclare': 'error',
       '@typescript-eslint/consistent-type-imports': [
         'error',
         {

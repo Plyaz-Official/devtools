@@ -38,10 +38,6 @@
     "strictPropertyInitialization": false,
     "types": ["next", "react", "react-dom", "vitest", "vitest/config", "node", "vitest/globals"]
   },
-  "rules": {
-    "no-redeclare": "off",
-    "@typescript-eslint/no-redeclare": "error"
-  },
   "include": ["src", "configs", "storybook"],
   "exclude": ["node_modules", "dist", "build", "coverage"]
 }
