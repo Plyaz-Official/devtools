@@ -1,0 +1,52 @@
+name: Release (Production)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      TF_VAR_linked_project: ${{ secrets.PRODUCTION_PROJECT_ID }}
+    defaults:
+      run:
+        working-directory: packages/core/supabase/remotes
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - run: terraform init
+      - run: terraform apply -auto-approve -no-color
+
+  migrate:
+    needs: apply
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      # Method 2: Connection String for @plyaz/db scripts
+      DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 23
+          cache: 'pnpm'
+
+      - name: Install Dependencies
+        run: pnpm install --filter "@plyaz/core"
+
+      - name: 🛠️ Validate & Push Migrations (Production)
+        # This script ensures RLS, Functions, and Schema are applied
+        run: pnpm db:migrate
+        working-directory: packages/core

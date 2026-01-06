@@ -9,8 +9,8 @@
       "ES2018",
       "ES2019",
       "ES2020",
-      "DOM", 
-      "DOM.Iterable", 
+      "DOM",
+      "DOM.Iterable",
       "es2024"
     ],
     "moduleResolution": "Node",
@@ -36,15 +36,11 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
-    "types": [
-      "next",
-      "react",
-      "react-dom",
-      "vitest",
-      "vitest/config",
-      "node",
-      "vitest/globals"
-    ]
+    "types": ["next", "react", "react-dom", "vitest", "vitest/config", "node", "vitest/globals"]
+  },
+  "rules": {
+    "no-redeclare": "off",
+    "@typescript-eslint/no-redeclare": "error"
   },
   "include": ["src", "configs", "storybook"],
   "exclude": ["node_modules", "dist", "build", "coverage"]

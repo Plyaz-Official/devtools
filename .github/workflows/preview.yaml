@@ -69,5 +69,7 @@ jobs:
           max_attempts: 10
           command: supabase link --project-ref ${{ needs.apply.outputs.ref }}
 
-      - run: yes | supabase db reset --linked
+      # This is your quality firewall check
+      - name: 🛠️ Validate Migrations, RLS, and Functions
+        run: yes | supabase db reset --linked
         working-directory: packages/core
